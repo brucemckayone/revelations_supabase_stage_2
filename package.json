@@ -1,0 +1,17 @@
+{
+  "name": "revelations_supabase",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@snaplet/copycat": "^5.0.0",
+    "@snaplet/seed": "^0.98.0",
+    "@types/pg": "^8.11.8",
+    "pg": "^8.12.0"
+  }
+}
