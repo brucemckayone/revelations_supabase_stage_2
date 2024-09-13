@@ -68,8 +68,11 @@ RETURNS TRIGGER AS $$
 DECLARE
     v_request_id bigint;
     v_error_message text;
+    my_var text;
 BEGIN
     BEGIN
+
+    my_var := current_setting('supabase.ANON_KEY', true);
         -- Make the HTTP POST request
         SELECT net.http_post(
             url := 'http://host.docker.internal:54321/functions/v1/embeddings',
@@ -79,8 +82,8 @@ BEGIN
             ),
             headers := jsonb_build_object(
                 'Content-Type', 'application/json',
-                'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0'
-            )
+                'Authorization', 'Bearer ' || my_var
+            ) 
         ) INTO v_request_id;
 
         -- Log success (you can modify this part based on your logging preferences)
