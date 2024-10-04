@@ -8,7 +8,7 @@ CREATE TYPE public.dance_content_creation_result AS (
     slug TEXT
 );
 
-drop function if exists create_dance_content_with_details;
+
 -- Main function to create dance content
 CREATE OR REPLACE FUNCTION public.create_dance_content_with_details(
     p_title TEXT,
@@ -77,7 +77,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY INVOKER;
 
 
-drop function if exists  update_dance_content_with_details;
+
 -- Function to update dance content
 CREATE OR REPLACE FUNCTION public.update_dance_content_with_details(
     p_post_id UUID,

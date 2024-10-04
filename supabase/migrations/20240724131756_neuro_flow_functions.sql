@@ -8,7 +8,6 @@ CREATE TYPE public.neuroflow_content_creation_result AS (
     slug TEXT
 );
 
-drop function if exists create_neuroflow_content_with_details;
 -- Main function to create neuro flow content
 CREATE OR REPLACE FUNCTION public.create_neuroflow_content_with_details(
     p_title TEXT,
@@ -83,7 +82,6 @@ END;
 $$ LANGUAGE plpgsql SECURITY INVOKER;
 
 
-drop function if exists update_neuroflow_content_with_details;
 -- Function to update neuro flow content
 CREATE OR REPLACE FUNCTION public.update_neuroflow_content_with_details(
     p_post_id UUID,

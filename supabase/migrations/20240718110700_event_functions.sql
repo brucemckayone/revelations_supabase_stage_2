@@ -236,8 +236,7 @@ CREATE TYPE event_creation_result AS (
     slug TEXT
 );
 
--- Drop the existing function
-DROP FUNCTION IF EXISTS public.create_event_with_details;
+
 
 
 CREATE OR REPLACE FUNCTION public.create_event_with_details(

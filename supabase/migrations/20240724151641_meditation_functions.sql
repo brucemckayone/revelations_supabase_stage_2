@@ -24,7 +24,8 @@ CREATE OR REPLACE FUNCTION public.create_meditation_content_with_details(
     p_playlist_ids UUID[],
     p_meditation_type TEXT,
     p_meditation_theme TEXT,
-    p_meditation_focus TEXT
+    p_meditation_focus TEXT,
+    p_user_id UUID DEFAULT NULL
 ) RETURNS meditation_content_creation_result AS $$
 DECLARE
     v_post_id UUID;
@@ -41,7 +42,8 @@ BEGIN
         p_content,
         'meditation'::post_type_enum,
         p_status,
-        p_thumbnail_url
+        p_thumbnail_url,
+        p_user_id
     );
 
     -- Add tags to the post
@@ -165,3 +167,4 @@ EXCEPTION
         RAISE EXCEPTION 'Error updating meditation content: %', SQLERRM;
 END;
 $$ LANGUAGE plpgsql SECURITY INVOKER;
+

@@ -11,6 +11,8 @@ CREATE TYPE public.post_type_enum AS ENUM (
     'yoga',
     'dance',
     'meditation',
+    'breath_work',
+    'primal',
     'ritual',
     'ceremony',
     'article',
@@ -40,6 +42,7 @@ CREATE TABLE public.posts (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (slug),
+    featured BOOLEAN DEFAULT FALSE,
     CONSTRAINT title_length CHECK (char_length(title) >= 3 AND char_length(title) <= 255)
 );
 
@@ -58,9 +61,7 @@ CREATE TABLE IF NOT EXISTS public.embeddings (
 -- Create an index on the embedding column for faster similarity searches
 CREATE INDEX ON public.embeddings USING ivfflat (embedding vector_cosine_ops);
 
--- Drop existing function and trigger if they exist
-DROP TRIGGER IF EXISTS create_embedding_trigger ON public.posts;
-DROP FUNCTION IF EXISTS trigger_create_embedding;
+
 
 -- Create or replace the function to trigger the embedding creation
 CREATE OR REPLACE FUNCTION trigger_create_embedding()
@@ -125,7 +126,7 @@ CREATE TABLE public.tags (
     name VARCHAR(50) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     post_type post_type_enum NOT NULL,
-    UNIQUE (name)
+    UNIQUE (name, post_type)
 );
 
 -- Create post_tags table
@@ -152,3 +153,4 @@ CREATE TRIGGER update_posts_modtime
 BEFORE UPDATE ON public.posts
 FOR EACH ROW
 EXECUTE FUNCTION update_modified_column();
+

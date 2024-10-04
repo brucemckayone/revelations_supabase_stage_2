@@ -34,7 +34,7 @@ CREATE TYPE public.yoga_content_creation_result AS (
     slug TEXT
 );
 
-drop function if exists create_yoga_content_with_details;
+
 -- Main function to create yoga content
 CREATE OR REPLACE FUNCTION public.create_yoga_content_with_details(
     p_title TEXT,
@@ -103,7 +103,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY INVOKER;
 
 
-drop function if exists update_yoga_content_with_details;
+
 -- Update the function
 CREATE OR REPLACE FUNCTION public.update_yoga_content_with_details(
     p_post_id UUID,

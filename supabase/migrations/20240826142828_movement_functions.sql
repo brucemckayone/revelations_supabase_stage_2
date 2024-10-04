@@ -1,5 +1,5 @@
 
-DROP FUNCTION IF EXISTS get_filtered_movement_content;
+
 CREATE OR REPLACE FUNCTION get_filtered_movement_content(
     input_post_ids UUID[] DEFAULT NULL,
     post_type_array post_type_enum[] DEFAULT NULL,

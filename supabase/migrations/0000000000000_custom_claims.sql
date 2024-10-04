@@ -40,12 +40,6 @@ CREATE TYPE public.timezone AS ENUM (
     'UTC+14:00'
 );
 
--- Drop existing types and tables if they exist
-DROP TYPE IF EXISTS public.user_role CASCADE;
-DROP TYPE IF EXISTS public.app_permission CASCADE;
-DROP TABLE IF EXISTS public.role_permissions CASCADE;
-DROP TABLE IF EXISTS public.policy_strings CASCADE;
-DROP TABLE IF EXISTS public.table_changes CASCADE;
 
 -- Create user_role type
 CREATE TYPE public.user_role AS ENUM ('admin', 'moderator', 'creator', 'user');

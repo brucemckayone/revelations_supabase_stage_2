@@ -5,7 +5,6 @@ CREATE TYPE public.service_content_creation_result AS (
     slug TEXT
 );
 
-drop function if exists create_service_content_with_details;
 CREATE OR REPLACE FUNCTION public.create_service_content_with_details(
     p_title TEXT,
     p_slug TEXT,
@@ -75,7 +74,6 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY INVOKER;
 
-drop function if exists update_service_content_with_details;
 
 -- Function to update service content
 CREATE OR REPLACE FUNCTION public.update_service_content_with_details(

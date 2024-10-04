@@ -253,7 +253,51 @@ BEGIN
     -- Service tags
     ('Coaching Service', 'service'), ('Therapy Service', 'service'), ('Consultation Service', 'service'), ('Training Service', 'service'),
     ('Online Service', 'service'), ('In-Person Service', 'service'), ('Hybrid Service', 'service'),
-    ('Wellness Service', 'service'), ('Personal Development Service', 'service'), ('Performance Service', 'service');
+    ('Wellness Service', 'service'), ('Personal Development Service', 'service'), ('Performance Service', 'service'),
+
+
+    -- Meditation tags
+    ('Mindfulness', 'meditation'),
+    ('Transcendental', 'meditation'),
+    ('Loving-Kindness', 'meditation'),
+    ('Vipassana', 'meditation'),
+    ('Zen', 'meditation'),
+    ('Beginner', 'meditation'),
+    ('Intermediate', 'meditation'),
+    ('Advanced', 'meditation'),
+    ('Guided', 'meditation'),
+    ('Body Scan', 'meditation'),
+    ('Breath Awareness', 'meditation'),
+    ('Mantra', 'meditation'),
+
+    -- article tags 
+    ('Coaching', 'article'),
+    ('Therapy', 'article'), 
+    ('Consultation', 'article'), 
+    ('Training', 'article'), 
+    ('Online Wellness', 'article'), 
+    ('In-Person Wellness', 'article'), 
+    ('Hybrid Wellness', 'article'), 
+    ('Wellness', 'article'), 
+    ('Personal Development', 'article'), 
+    ('Performance', 'article'), 
+    ('Mindfulness', 'article'), 
+    ('Meditation', 'article'), 
+    ('Stress Management', 'article'), 
+    ('Holistic Health', 'article'), 
+    ('Nutrition', 'article'), 
+    ('Fitness', 'article'), 
+    ('Emotional Well-being', 'article'), 
+    ('Self-Care', 'article'), 
+    ('Mental Health', 'article'), 
+    ('Yoga', 'article'), 
+    ('Sleep Health', 'article'), 
+    ('Work-Life Balance', 'article'), 
+    ('Positive Thinking', 'article'), 
+    ('Resilience', 'article'), 
+    ('Healthy Habits', 'article'), 
+    ('Breathing Techniques', 'article');
+
 
 
 
@@ -645,5 +689,5 @@ BEGIN
         RAISE NOTICE 'Created service: %', v_result_service;
     END LOOP;
 
-    
+    insert into public.waitlists (title, description) values ('become_a_creator', 'wait list for those who want to become a creator on the platform');    
 END $$;

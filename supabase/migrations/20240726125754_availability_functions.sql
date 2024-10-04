@@ -145,3 +145,4 @@ BEGIN
     RETURN QUERY SELECT * FROM temp_availability ORDER BY start_time NULLS LAST;
 END;
 $$ LANGUAGE plpgsql;
+

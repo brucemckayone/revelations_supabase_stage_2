@@ -32,8 +32,6 @@ CREATE TABLE public.event_dates (
 -- First, ensure the btree_gist extension is created
 CREATE EXTENSION IF NOT EXISTS btree_gist;
 
--- Remove the existing constraint if it exists
-ALTER TABLE public.event_dates DROP CONSTRAINT IF EXISTS no_overlapping_dates;
 
 -- Now, add the correct constraint
 ALTER TABLE public.event_dates

@@ -26,6 +26,18 @@ CREATE TABLE public.service_dates (
     CONSTRAINT check_time_range CHECK (start_time < end_time)
 );
 
+create table  public.service_reservations(
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    service_id UUID NOT NULL REFERENCES public.services(id) ON DELETE CASCADE,
+    duration tstzrange not null,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    
+);
+
+
+
 -- Create index for faster lookups
 CREATE INDEX idx_service_dates_service_id ON public.service_dates(service_id);
 

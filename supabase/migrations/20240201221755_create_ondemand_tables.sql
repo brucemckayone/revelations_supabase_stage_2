@@ -103,7 +103,7 @@ CREATE TABLE public.meditations (
 
 -- Modify spotify_playlists table
 CREATE TABLE public.spotify_playlists (
-    user_id UUID NOT NULL REFERENCES auth.users(id),
+    user_id UUID NOT NULL REFERENCES auth.users(id) default auth.uid(),
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     iframe TEXT NOT NULL UNIQUE
 );

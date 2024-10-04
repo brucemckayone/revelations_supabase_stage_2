@@ -189,7 +189,7 @@ CREATE TYPE public.ondemand_content_creation_result AS (
 );
 
 
-drop function if exists create_ondemand_content_with_details;
+
 -- Main function to create on-demand content
 CREATE OR REPLACE FUNCTION public.create_ondemand_content_with_details(
     p_title TEXT,
