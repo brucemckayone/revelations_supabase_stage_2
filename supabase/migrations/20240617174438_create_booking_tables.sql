@@ -18,20 +18,7 @@ CREATE INDEX idx_bookings_post_id ON public.bookings(post_id);
 CREATE INDEX idx_bookings_user_id ON public.bookings(user_id);
 CREATE INDEX idx_bookings_start_time ON public.bookings(start_time);
 
--- Modify the availability table
-CREATE TABLE public.availability (
-    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-    day VARCHAR(20) NOT NULL CHECK (day IN ('monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday')),
-    is_active BOOLEAN NOT NULL,
-    start_time TIMESTAMP WITH TIME ZONE NOT NULL,
-    end_time TIMESTAMP WITH TIME ZONE NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT pk_availability PRIMARY KEY (user_id, day),
-    CONSTRAINT check_time_range CHECK (start_time < end_time)
-);
 
--- Create index for faster lookups
 CREATE INDEX idx_availability_user_id ON public.availability(user_id);
 
 -- Modify the service_bookings table
