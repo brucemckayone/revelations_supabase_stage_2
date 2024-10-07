@@ -5,6 +5,8 @@
 # Environment variables
 .env
 .env.*
+.env.development
+.env.production
 !.env.example
 
 # Dependencies
