@@ -1,4 +1,4 @@
-drop function get_on_page_meditation_by_slug;
+
 CREATE OR REPLACE FUNCTION get_on_page_meditation_by_slug(p_slug text)
 RETURNS TABLE (
     id UUID,
