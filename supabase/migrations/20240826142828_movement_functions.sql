@@ -1,7 +1,6 @@
-
-
 CREATE OR REPLACE FUNCTION get_filtered_movement_content(
     input_post_ids UUID[] DEFAULT NULL,
+    input_featured boolean DEFAULT NULL,
     post_type_array post_type_enum[] DEFAULT NULL,
     search_title TEXT DEFAULT NULL,
     min_duration INT DEFAULT NULL,
@@ -31,7 +30,8 @@ CREATE OR REPLACE FUNCTION get_filtered_movement_content(
     recommended_environment TEXT,
     body_focus TEXT,
     tags TEXT,
-    total_count BIGINT
+    total_count BIGINT,
+    featured boolean
 ) AS $$
 DECLARE
     min_duration_interval INTERVAL;
@@ -60,6 +60,7 @@ BEGIN
         AND (post_type_array IS NULL OR p.post_type = ANY(post_type_array))
         AND (search_title IS NULL OR p.title ILIKE '%' || search_title || '%')
         AND (tag_array IS NULL OR t.name = ANY(tag_array))
+        AND (input_featured IS NULL OR p.featured = input_featured)
     ),
     counted_results AS (
         SELECT 
@@ -69,6 +70,7 @@ BEGIN
             p.slug,
             p.description,
             p.thumbnail_url,
+            p.featured, -- Ensure featured is selected from the correct table
             odm.media_type,
             odm.duration,
             odm.price,
@@ -123,7 +125,8 @@ BEGIN
         cr.recommended_environment,
         cr.body_focus,
         cr.tags,
-        cr.total_count
+        cr.total_count,
+        cr.featured -- Ensure featured is selected in the final result
     FROM counted_results cr
     LIMIT p_limit
     OFFSET p_offset;

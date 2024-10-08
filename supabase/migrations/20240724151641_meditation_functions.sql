@@ -33,7 +33,14 @@ DECLARE
     v_protected_media_id UUID;
     v_meditation_id UUID;
     v_result meditation_content_creation_result;
+    v_user_id UUID;
 BEGIN
+    v_user_id := COALESCE(p_user_id, auth.uid());
+    
+    IF v_user_id IS NULL THEN
+        RAISE EXCEPTION 'User ID is required';
+    END IF;
+
     -- Create the post
     v_post_id := public.create_post(
         p_title,
@@ -43,7 +50,7 @@ BEGIN
         'meditation'::post_type_enum,
         p_status,
         p_thumbnail_url,
-        p_user_id
+        v_user_id
     );
 
     -- Add tags to the post
@@ -54,7 +61,8 @@ BEGIN
         v_post_id,
         p_media_type,
         p_duration,
-        p_price
+        p_price,
+        v_user_id
     );
 
     -- Create the protected_media_data record

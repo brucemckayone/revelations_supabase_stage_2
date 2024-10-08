@@ -105,6 +105,29 @@ DECLARE
     v_content TEXT;
     v_description TEXT;
 
+    meditation_names TEXT[] := ARRAY[
+        'Mindful Breathing', 'Body Scan Relaxation', 'Loving-Kindness Meditation',
+        'Mindfulness of Thoughts', 'Zen Meditation', 'Transcendental Meditation',
+        'Chakra Balancing', 'Guided Visualization', 'Mantra Meditation', 'Walking Meditation'
+    ];
+    meditation_types TEXT[] := ARRAY[
+        'Mindfulness', 'Body Scan', 'Loving-Kindness',
+        'Mindfulness', 'Zen', 'Transcendental',
+        'Chakra', 'Visualization', 'Mantra', 'Movement'
+    ];
+    meditation_themes TEXT[] := ARRAY[
+        'Stress Relief', 'Relaxation', 'Compassion',
+        'Mental Clarity', 'Focus', 'Self-Discovery',
+        'Energy Balance', 'Healing', 'Inner Peace', 'Presence'
+    ];
+    meditation_focuses TEXT[] := ARRAY[
+        'Breath', 'Body', 'Emotions',
+        'Thoughts', 'Present Moment', 'Mantra',
+        'Energy Centers', 'Imagery', 'Sound', 'Movement'
+    ];
+
+    v_result_meditation meditation_content_creation_result;
+
         
     service_themes TEXT[] := ARRAY[
         'Neuro-Somatic Intelligence Session',
@@ -646,47 +669,47 @@ BEGIN
 
     -- Create multiple services
     FOR i IN 1..10 LOOP
-        -- Generate content (using a simplified version of the provided content)
+        -- Generate content
         v_content := format(
-            '{"type":"doc","content":[{"type":"paragraph","attrs":{"textAlign":"left"},"content":[{"type":"text","text":"Embark on a journey of self-discovery and optimization with our exclusive %s. This innovative approach combines cutting-edge techniques to unlock your full potential and elevate your overall well-being."}]},{"type":"heading","attrs":{"textAlign":"left","level":2},"content":[{"type":"text","text":"Session Overview"}]},{"type":"paragraph","attrs":{"textAlign":"left"},"content":[{"type":"text","text":"In this personalized session, you''ll work one-on-one with a certified practitioner to explore and expand your potential. Using a combination of guided exercises, targeted discussions, and real-time feedback, you''ll learn valuable techniques and strategies."}]},{"type":"heading","attrs":{"textAlign":"left","level":2},"content":[{"type":"text","text":"What to Expect"}]},{"type":"paragraph","attrs":{"textAlign":"left"},"content":[{"type":"text","text":"Your session will be tailored to your specific needs and goals, focusing on %s and related aspects of personal development."}]}]}',
-            service_themes[i],
-            lower(service_themes[i])
+            '{"type":"doc","content":[{"type":"paragraph","attrs":{"textAlign":"left"},"content":[{"type":"text","text":"Welcome to %s, a %s meditation session designed to help you focus on %s. This practice will guide you through a %s-minute journey of self-discovery and inner peace."}]},{"type":"heading","attrs":{"textAlign":"left","level":2},"content":[{"type":"text","text":"What to Expect"}]},{"type":"paragraph","attrs":{"textAlign":"left"},"content":[{"type":"text","text":"During this meditation:"}]},{"type":"bulletList","content":[{"type":"listItem","content":[{"type":"paragraph","attrs":{"textAlign":"left"},"content":[{"type":"text","text":"You''ll learn techniques to %s"}]}]},{"type":"listItem","content":[{"type":"paragraph","attrs":{"textAlign":"left"},"content":[{"type":"text","text":"We''ll focus on %s to enhance your %s"}]}]},{"type":"listItem","content":[{"type":"paragraph","attrs":{"textAlign":"left"},"content":[{"type":"text","text":"You''ll discover how to integrate %s into your daily life"}]}]}]},{"type":"paragraph","attrs":{"textAlign":"left"},"content":[{"type":"text","text":"Remember, there''s no right or wrong way to meditate. Simply follow along and allow yourself to be present in the moment."}]}]}',
+            meditation_names[i],
+            meditation_types[i],
+            meditation_focuses[i],
+            (15 + (i * 5))::TEXT,
+            (CASE 
+                WHEN i % 3 = 0 THEN 'calm your mind'
+                WHEN i % 3 = 1 THEN 'relax your body'
+                ELSE 'open your heart'
+            END),
+            lower(meditation_focuses[i]),
+            lower(meditation_themes[i]),
+            lower(meditation_types[i])
         );
 
         -- Generate description
-        v_description := 'Experience the transformative power of ' || service_themes[i] || '. This personalized session is designed to help you achieve optimal well-being and unlock your full potential.';
+        v_description := format('Experience the transformative power of %s with our %s meditation. This %s-minute session focuses on %s, helping you cultivate %s in your daily life.', 
+            meditation_names[i], meditation_types[i], (15 + (i * 5))::TEXT, lower(meditation_focuses[i]), lower(meditation_themes[i]));
 
-        v_result_service := public.create_service_content_with_details(
-            -- Title
-            service_themes[i],
-            -- Slug (sanitized)
-            sanitize_slug(service_themes[i]),
-            -- Description
+        v_result_meditation := public.create_meditation_content_with_details(
+            meditation_names[i],
+            lower(replace(meditation_names[i], ' ', '-')),
             v_description,
-            -- Content
             v_content,
-            -- Thumbnail URL (using event images as placeholders)
             event_image_urls[1 + (i % array_length(event_image_urls, 1))],
-            -- Tags
-            ARRAY (SELECT name FROM public.tags WHERE post_type = 'service' ORDER BY RANDOM() LIMIT 4),
-            -- Status
+            ARRAY (SELECT name FROM public.tags WHERE post_type = 'meditation' ORDER BY RANDOM() LIMIT 4),
             'public'::publish_status_enum,
-            -- Location ID (cycling through available locations)
-            v_location_ids[1 + (i % array_length(v_location_ids, 1))],
-            -- Price (varying between 30 and 100)
-            30 + (i * 7)::NUMERIC(10, 2),
-            -- Duration (varying between 30 and 120 minutes)
-            ((30 + (i * 10)) || ' minutes')::INTERVAL,
-            -- Type (cycling through online, in-person, hybrid)
-            (CASE 
-                WHEN i % 3 = 0 THEN 'online'
-                WHEN i % 3 = 1 THEN 'in-person'
-                ELSE 'hybrid'
-            END)::public.event_type_enum,
+            'audio'::media_type_enum,
+            ((15 + (i * 5)) || ' minutes')::INTERVAL,
+            9.99 + (i * 0.5),
+            'https://example.com/protected/meditation_' || i || '.mp3',
+            playlist_ids,
+            meditation_types[i],
+            meditation_themes[i],
+            meditation_focuses[i],
             creator_id
         );
 
-        RAISE NOTICE 'Created service: %', v_result_service;
+        RAISE NOTICE 'Created meditation: %', v_result;
     END LOOP;
 
     insert into public.waitlists (title, description) values ('become_a_creator', 'wait list for those who want to become a creator on the platform');    

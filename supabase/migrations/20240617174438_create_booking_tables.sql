@@ -19,8 +19,6 @@ CREATE INDEX idx_bookings_user_id ON public.bookings(user_id);
 CREATE INDEX idx_bookings_start_time ON public.bookings(start_time);
 
 
-CREATE INDEX idx_availability_user_id ON public.availability(user_id);
-
 -- Modify the service_bookings table
 CREATE TABLE public.service_bookings (
     booking_id UUID PRIMARY KEY REFERENCES public.bookings(id) ON DELETE CASCADE,
@@ -56,10 +54,5 @@ $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER update_bookings_modtime
     BEFORE UPDATE ON public.bookings
-    FOR EACH ROW
-    EXECUTE FUNCTION update_modified_column();
-
-CREATE TRIGGER update_availability_modtime
-    BEFORE UPDATE ON public.availability
     FOR EACH ROW
     EXECUTE FUNCTION update_modified_column();

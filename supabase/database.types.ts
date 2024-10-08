@@ -34,6 +34,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      appointments: {
+        Row: {
+          client_id: string | null
+          created_at: string | null
+          end_time: string
+          facilitator_id: string | null
+          id: string
+          start_time: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string | null
+          end_time: string
+          facilitator_id?: string | null
+          id?: string
+          start_time: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string | null
+          end_time?: string
+          facilitator_id?: string | null
+          id?: string
+          start_time?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_facilitator_id_fkey"
+            columns: ["facilitator_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       article_purchases: {
         Row: {
           article_id: string
@@ -106,7 +154,70 @@ export type Database = {
             foreignKeyName: "articles_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "dance_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "meditation_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "movement_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "post_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "service_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "articles_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "yoga_details"
             referencedColumns: ["id"]
           },
         ]
@@ -188,7 +299,70 @@ export type Database = {
             foreignKeyName: "bookings_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "dance_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "meditation_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "movement_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "post_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "service_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "yoga_details"
             referencedColumns: ["id"]
           },
           {
@@ -233,8 +407,57 @@ export type Database = {
             foreignKeyName: "ceremony_content_id_fkey"
             columns: ["content_id"]
             isOneToOne: false
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "ceremony_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "dance_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "ceremony_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "meditation_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "ceremony_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "movement_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "ceremony_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "ceremony_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "ceremony_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
             referencedRelation: "on_demand_media"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ceremony_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "yoga_details"
+            referencedColumns: ["on_demand_media_id"]
           },
         ]
       }
@@ -284,7 +507,70 @@ export type Database = {
             foreignKeyName: "comments_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "dance_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "meditation_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "movement_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "post_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "service_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "yoga_details"
             referencedColumns: ["id"]
           },
           {
@@ -317,8 +603,36 @@ export type Database = {
             foreignKeyName: "dance_movement_id_fkey"
             columns: ["movement_id"]
             isOneToOne: true
+            referencedRelation: "dance_details"
+            referencedColumns: ["movement_id"]
+          },
+          {
+            foreignKeyName: "dance_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: true
+            referencedRelation: "movement_details"
+            referencedColumns: ["movement_id"]
+          },
+          {
+            foreignKeyName: "dance_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: true
             referencedRelation: "movements"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dance_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: true
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["movement_id"]
+          },
+          {
+            foreignKeyName: "dance_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: true
+            referencedRelation: "yoga_details"
+            referencedColumns: ["movement_id"]
           },
         ]
       }
@@ -343,7 +657,70 @@ export type Database = {
             foreignKeyName: "embeddings_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: true
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "embeddings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "dance_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "embeddings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "meditation_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "embeddings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "movement_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "embeddings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "embeddings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "embeddings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "post_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "embeddings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "embeddings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "service_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "embeddings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "yoga_details"
             referencedColumns: ["id"]
           },
         ]
@@ -481,7 +858,70 @@ export type Database = {
             foreignKeyName: "events_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "dance_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "meditation_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "movement_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "post_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "service_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "yoga_details"
             referencedColumns: ["id"]
           },
         ]
@@ -593,7 +1033,70 @@ export type Database = {
             foreignKeyName: "live_rooms_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_rooms_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "dance_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_rooms_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "meditation_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_rooms_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "movement_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_rooms_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_rooms_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_rooms_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "post_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_rooms_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_rooms_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "service_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_rooms_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "yoga_details"
             referencedColumns: ["id"]
           },
           {
@@ -694,7 +1197,105 @@ export type Database = {
             foreignKeyName: "media_access_control_content_id_fkey"
             columns: ["content_id"]
             isOneToOne: false
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "media_access_control_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "dance_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "media_access_control_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "meditation_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "media_access_control_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "movement_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "media_access_control_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "media_access_control_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "media_access_control_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
             referencedRelation: "on_demand_media"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_access_control_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "yoga_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "media_access_control_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_access_control_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "dance_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_access_control_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "meditation_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_access_control_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "movement_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_access_control_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_access_control_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_access_control_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "post_details"
             referencedColumns: ["id"]
           },
           {
@@ -702,6 +1303,20 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_access_control_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "service_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_access_control_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "yoga_details"
             referencedColumns: ["id"]
           },
           {
@@ -753,8 +1368,57 @@ export type Database = {
             foreignKeyName: "meditations_content_id_fkey"
             columns: ["content_id"]
             isOneToOne: false
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "meditations_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "dance_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "meditations_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "meditation_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "meditations_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "movement_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "meditations_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "meditations_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "meditations_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
             referencedRelation: "on_demand_media"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meditations_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "yoga_details"
+            referencedColumns: ["on_demand_media_id"]
           },
         ]
       }
@@ -794,8 +1458,36 @@ export type Database = {
             foreignKeyName: "movement_props_join_movement_id_fkey"
             columns: ["movement_id"]
             isOneToOne: false
+            referencedRelation: "dance_details"
+            referencedColumns: ["movement_id"]
+          },
+          {
+            foreignKeyName: "movement_props_join_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: false
+            referencedRelation: "movement_details"
+            referencedColumns: ["movement_id"]
+          },
+          {
+            foreignKeyName: "movement_props_join_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: false
             referencedRelation: "movements"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movement_props_join_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: false
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["movement_id"]
+          },
+          {
+            foreignKeyName: "movement_props_join_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: false
+            referencedRelation: "yoga_details"
+            referencedColumns: ["movement_id"]
           },
           {
             foreignKeyName: "movement_props_join_prop_id_fkey"
@@ -851,8 +1543,57 @@ export type Database = {
             foreignKeyName: "movements_content_id_fkey"
             columns: ["content_id"]
             isOneToOne: true
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "movements_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: true
+            referencedRelation: "dance_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "movements_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: true
+            referencedRelation: "meditation_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "movements_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: true
+            referencedRelation: "movement_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "movements_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: true
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "movements_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: true
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "movements_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: true
             referencedRelation: "on_demand_media"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "movements_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: true
+            referencedRelation: "yoga_details"
+            referencedColumns: ["on_demand_media_id"]
           },
         ]
       }
@@ -883,8 +1624,36 @@ export type Database = {
             foreignKeyName: "neuroflow_movement_id_fkey"
             columns: ["movement_id"]
             isOneToOne: true
+            referencedRelation: "dance_details"
+            referencedColumns: ["movement_id"]
+          },
+          {
+            foreignKeyName: "neuroflow_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: true
+            referencedRelation: "movement_details"
+            referencedColumns: ["movement_id"]
+          },
+          {
+            foreignKeyName: "neuroflow_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: true
             referencedRelation: "movements"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "neuroflow_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: true
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["movement_id"]
+          },
+          {
+            foreignKeyName: "neuroflow_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: true
+            referencedRelation: "yoga_details"
+            referencedColumns: ["movement_id"]
           },
         ]
       }
@@ -924,7 +1693,70 @@ export type Database = {
             foreignKeyName: "on_demand_media_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: true
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "on_demand_media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "dance_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "on_demand_media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "meditation_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "on_demand_media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "movement_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "on_demand_media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "on_demand_media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "on_demand_media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "post_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "on_demand_media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "on_demand_media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "service_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "on_demand_media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "yoga_details"
             referencedColumns: ["id"]
           },
           {
@@ -964,7 +1796,70 @@ export type Database = {
             foreignKeyName: "post_emotional_focuses_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_emotional_focuses_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "dance_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_emotional_focuses_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "meditation_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_emotional_focuses_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "movement_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_emotional_focuses_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_emotional_focuses_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_emotional_focuses_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "post_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_emotional_focuses_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_emotional_focuses_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "service_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_emotional_focuses_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "yoga_details"
             referencedColumns: ["id"]
           },
         ]
@@ -997,7 +1892,70 @@ export type Database = {
             foreignKeyName: "post_locations_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_locations_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "dance_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_locations_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "meditation_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_locations_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "movement_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_locations_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_locations_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_locations_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "post_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_locations_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_locations_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "service_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_locations_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "yoga_details"
             referencedColumns: ["id"]
           },
         ]
@@ -1020,7 +1978,70 @@ export type Database = {
             foreignKeyName: "post_tags_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "dance_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "meditation_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "movement_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "post_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "service_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "yoga_details"
             referencedColumns: ["id"]
           },
           {
@@ -1037,6 +2058,7 @@ export type Database = {
           content: string | null
           created_at: string | null
           description: string | null
+          featured: boolean | null
           id: string
           post_type: Database["public"]["Enums"]["post_type_enum"]
           slug: string
@@ -1044,12 +2066,13 @@ export type Database = {
           thumbnail_url: string | null
           title: string
           updated_at: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           content?: string | null
           created_at?: string | null
           description?: string | null
+          featured?: boolean | null
           id?: string
           post_type: Database["public"]["Enums"]["post_type_enum"]
           slug: string
@@ -1057,12 +2080,13 @@ export type Database = {
           thumbnail_url?: string | null
           title: string
           updated_at?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           content?: string | null
           created_at?: string | null
           description?: string | null
+          featured?: boolean | null
           id?: string
           post_type?: Database["public"]["Enums"]["post_type_enum"]
           slug?: string
@@ -1070,7 +2094,7 @@ export type Database = {
           thumbnail_url?: string | null
           title?: string
           updated_at?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -1144,8 +2168,57 @@ export type Database = {
             foreignKeyName: "protected_media_data_content_id_fkey"
             columns: ["content_id"]
             isOneToOne: true
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "protected_media_data_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: true
+            referencedRelation: "dance_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "protected_media_data_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: true
+            referencedRelation: "meditation_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "protected_media_data_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: true
+            referencedRelation: "movement_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "protected_media_data_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: true
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "protected_media_data_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: true
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "protected_media_data_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: true
             referencedRelation: "on_demand_media"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "protected_media_data_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: true
+            referencedRelation: "yoga_details"
+            referencedColumns: ["on_demand_media_id"]
           },
         ]
       }
@@ -1198,7 +2271,105 @@ export type Database = {
             foreignKeyName: "purchases_content_id_fkey"
             columns: ["content_id"]
             isOneToOne: false
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "purchases_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "dance_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "purchases_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "meditation_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "purchases_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "movement_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "purchases_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "purchases_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "purchases_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
             referencedRelation: "on_demand_media"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchases_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "yoga_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "purchases_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchases_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "dance_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchases_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "meditation_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchases_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "movement_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchases_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchases_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchases_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "post_details"
             referencedColumns: ["id"]
           },
           {
@@ -1206,6 +2377,20 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchases_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "service_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "purchases_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "yoga_details"
             referencedColumns: ["id"]
           },
           {
@@ -1268,7 +2453,70 @@ export type Database = {
             foreignKeyName: "room_posts_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "dance_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "meditation_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "movement_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "post_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "service_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "yoga_details"
             referencedColumns: ["id"]
           },
           {
@@ -1390,6 +2638,48 @@ export type Database = {
           },
         ]
       }
+      service_reservations: {
+        Row: {
+          created_at: string | null
+          duration: unknown
+          id: string
+          service_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration: unknown
+          id?: string
+          service_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          duration?: unknown
+          id?: string
+          service_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_reservations_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_reservations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           content: string | null
@@ -1435,8 +2725,71 @@ export type Database = {
           {
             foreignKeyName: "services_post_id_fkey"
             columns: ["post_id"]
-            isOneToOne: false
+            isOneToOne: true
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "dance_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "meditation_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "movement_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "post_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
             referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "service_details"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "services_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
+            referencedRelation: "yoga_details"
             referencedColumns: ["id"]
           },
         ]
@@ -1459,8 +2812,57 @@ export type Database = {
             foreignKeyName: "spotify_playlist_join_content_id_fkey"
             columns: ["content_id"]
             isOneToOne: false
+            referencedRelation: "ceremony_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "spotify_playlist_join_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "dance_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "spotify_playlist_join_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "meditation_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "spotify_playlist_join_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "movement_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "spotify_playlist_join_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "spotify_playlist_join_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "on_demand_base"
+            referencedColumns: ["on_demand_media_id"]
+          },
+          {
+            foreignKeyName: "spotify_playlist_join_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
             referencedRelation: "on_demand_media"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "spotify_playlist_join_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "yoga_details"
+            referencedColumns: ["on_demand_media_id"]
           },
           {
             foreignKeyName: "spotify_playlist_join_playlist_id_fkey"
@@ -1480,7 +2882,7 @@ export type Database = {
         Insert: {
           id?: string
           iframe: string
-          user_id: string
+          user_id?: string
         }
         Update: {
           id?: string
@@ -1547,16 +2949,19 @@ export type Database = {
           created_at: string | null
           id: string
           name: string
+          post_type: Database["public"]["Enums"]["post_type_enum"]
         }
         Insert: {
           created_at?: string | null
           id?: string
           name: string
+          post_type: Database["public"]["Enums"]["post_type_enum"]
         }
         Update: {
           created_at?: string | null
           id?: string
           name?: string
+          post_type?: Database["public"]["Enums"]["post_type_enum"]
         }
         Relationships: []
       }
@@ -1913,6 +3318,66 @@ export type Database = {
           },
         ]
       }
+      waitlist_entries: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          user_id: string | null
+          waitlist_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          user_id?: string | null
+          waitlist_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          user_id?: string | null
+          waitlist_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_entries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlist_entries_waitlist_id_fkey"
+            columns: ["waitlist_id"]
+            isOneToOne: false
+            referencedRelation: "waitlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      waitlists: {
+        Row: {
+          created_at: string | null
+          description: string
+          id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          id?: string
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          id?: string
+          title?: string
+        }
+        Relationships: []
+      }
       yoga: {
         Row: {
           chakras: string | null
@@ -1937,14 +3402,497 @@ export type Database = {
             foreignKeyName: "yoga_movement_id_fkey"
             columns: ["movement_id"]
             isOneToOne: true
+            referencedRelation: "dance_details"
+            referencedColumns: ["movement_id"]
+          },
+          {
+            foreignKeyName: "yoga_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: true
+            referencedRelation: "movement_details"
+            referencedColumns: ["movement_id"]
+          },
+          {
+            foreignKeyName: "yoga_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: true
             referencedRelation: "movements"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "yoga_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: true
+            referencedRelation: "neuroflow_details"
+            referencedColumns: ["movement_id"]
+          },
+          {
+            foreignKeyName: "yoga_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: true
+            referencedRelation: "yoga_details"
+            referencedColumns: ["movement_id"]
           },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      ceremony_details: {
+        Row: {
+          ceremony_focus: string | null
+          ceremony_theme: string | null
+          ceremony_type: string | null
+          content: string | null
+          created_at: string | null
+          description: string | null
+          duration: unknown | null
+          event_subtype: Database["public"]["Enums"]["event_type_enum"] | null
+          featured: boolean | null
+          id: string | null
+          media_type: Database["public"]["Enums"]["media_type_enum"] | null
+          on_demand_created_at: string | null
+          on_demand_media_id: string | null
+          on_demand_updated_at: string | null
+          post_type: string | null
+          price: number | null
+          profile_avatar_url: string | null
+          profile_full_name: string | null
+          profile_id: string | null
+          service_subtype: Database["public"]["Enums"]["event_type_enum"] | null
+          slug: string | null
+          space_holder_names: string | null
+          spotify_playlist_ids: string[] | null
+          spotify_playlist_iframes: string[] | null
+          status: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+          what_to_bring: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dance_details: {
+        Row: {
+          body_focus: string | null
+          content: string | null
+          created_at: string | null
+          description: string | null
+          duration: unknown | null
+          emotional_focus: string | null
+          energy_level: number | null
+          event_subtype: Database["public"]["Enums"]["event_type_enum"] | null
+          featured: boolean | null
+          freeform_movement: boolean | null
+          id: string | null
+          instructor_name: string | null
+          media_type: Database["public"]["Enums"]["media_type_enum"] | null
+          movement_created_at: string | null
+          movement_id: string | null
+          movement_updated_at: string | null
+          on_demand_created_at: string | null
+          on_demand_media_id: string | null
+          on_demand_updated_at: string | null
+          post_type: string | null
+          price: number | null
+          profile_avatar_url: string | null
+          profile_full_name: string | null
+          profile_id: string | null
+          recommended_environment: string | null
+          service_subtype: Database["public"]["Enums"]["event_type_enum"] | null
+          session_theme: string | null
+          slug: string | null
+          spiritual_elements: string | null
+          spotify_playlist_ids: string[] | null
+          spotify_playlist_iframes: string[] | null
+          status: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meditation_details: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          description: string | null
+          duration: unknown | null
+          event_subtype: Database["public"]["Enums"]["event_type_enum"] | null
+          featured: boolean | null
+          id: string | null
+          media_type: Database["public"]["Enums"]["media_type_enum"] | null
+          meditation_focus: string | null
+          meditation_theme: string | null
+          meditation_type: string | null
+          on_demand_created_at: string | null
+          on_demand_media_id: string | null
+          on_demand_updated_at: string | null
+          post_type: string | null
+          price: number | null
+          profile_avatar_url: string | null
+          profile_full_name: string | null
+          profile_id: string | null
+          service_subtype: Database["public"]["Enums"]["event_type_enum"] | null
+          slug: string | null
+          space_holder_names: string | null
+          spotify_playlist_ids: string[] | null
+          spotify_playlist_iframes: string[] | null
+          status: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+          what_to_bring: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      movement_details: {
+        Row: {
+          body_focus: string | null
+          content: string | null
+          created_at: string | null
+          description: string | null
+          duration: unknown | null
+          emotional_focus: string | null
+          energy_level: number | null
+          event_subtype: Database["public"]["Enums"]["event_type_enum"] | null
+          featured: boolean | null
+          id: string | null
+          instructor_name: string | null
+          media_type: Database["public"]["Enums"]["media_type_enum"] | null
+          movement_created_at: string | null
+          movement_id: string | null
+          movement_updated_at: string | null
+          on_demand_created_at: string | null
+          on_demand_media_id: string | null
+          on_demand_updated_at: string | null
+          post_type: string | null
+          price: number | null
+          profile_avatar_url: string | null
+          profile_full_name: string | null
+          profile_id: string | null
+          recommended_environment: string | null
+          service_subtype: Database["public"]["Enums"]["event_type_enum"] | null
+          session_theme: string | null
+          slug: string | null
+          spiritual_elements: string | null
+          spotify_playlist_ids: string[] | null
+          spotify_playlist_iframes: string[] | null
+          status: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      neuroflow_details: {
+        Row: {
+          body_focus: string | null
+          content: string | null
+          created_at: string | null
+          description: string | null
+          duration: unknown | null
+          emotional_focus: string | null
+          energy_level: number | null
+          event_subtype: Database["public"]["Enums"]["event_type_enum"] | null
+          featured: boolean | null
+          id: string | null
+          instructor_name: string | null
+          media_type: Database["public"]["Enums"]["media_type_enum"] | null
+          movement_created_at: string | null
+          movement_id: string | null
+          movement_updated_at: string | null
+          on_demand_created_at: string | null
+          on_demand_media_id: string | null
+          on_demand_updated_at: string | null
+          personal_growth_outcomes: string | null
+          post_type: string | null
+          price: number | null
+          profile_avatar_url: string | null
+          profile_full_name: string | null
+          profile_id: string | null
+          recommended_environment: string | null
+          service_subtype: Database["public"]["Enums"]["event_type_enum"] | null
+          session_focus: string | null
+          session_theme: string | null
+          slug: string | null
+          spiritual_elements: string | null
+          spotify_playlist_ids: string[] | null
+          spotify_playlist_iframes: string[] | null
+          status: string | null
+          tags: string[] | null
+          techniques_used: string | null
+          thumbnail_url: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      on_demand_base: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          description: string | null
+          duration: unknown | null
+          event_subtype: Database["public"]["Enums"]["event_type_enum"] | null
+          featured: boolean | null
+          id: string | null
+          media_type: Database["public"]["Enums"]["media_type_enum"] | null
+          on_demand_created_at: string | null
+          on_demand_media_id: string | null
+          on_demand_updated_at: string | null
+          post_type: string | null
+          price: number | null
+          profile_avatar_url: string | null
+          profile_full_name: string | null
+          profile_id: string | null
+          service_subtype: Database["public"]["Enums"]["event_type_enum"] | null
+          slug: string | null
+          spotify_playlist_ids: string[] | null
+          spotify_playlist_iframes: string[] | null
+          status: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_details: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          description: string | null
+          event_subtype: Database["public"]["Enums"]["event_type_enum"] | null
+          featured: boolean | null
+          id: string | null
+          post_type: string | null
+          profile_avatar_url: string | null
+          profile_full_name: string | null
+          profile_id: string | null
+          service_subtype: Database["public"]["Enums"]["event_type_enum"] | null
+          slug: string | null
+          status: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_details: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          description: string | null
+          duration: unknown | null
+          featured: boolean | null
+          id: string | null
+          location_name: string | null
+          post_type: string | null
+          price: number | null
+          profile_avatar_url: string | null
+          profile_full_name: string | null
+          profile_id: string | null
+          slug: string | null
+          status: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string | null
+          type: Database["public"]["Enums"]["event_type_enum"] | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      yoga_details: {
+        Row: {
+          body_focus: string | null
+          chakras: string | null
+          content: string | null
+          created_at: string | null
+          description: string | null
+          duration: unknown | null
+          emotional_focus: string | null
+          energy_level: number | null
+          event_subtype: Database["public"]["Enums"]["event_type_enum"] | null
+          featured: boolean | null
+          id: string | null
+          instructor_name: string | null
+          media_type: Database["public"]["Enums"]["media_type_enum"] | null
+          movement_created_at: string | null
+          movement_id: string | null
+          movement_updated_at: string | null
+          on_demand_created_at: string | null
+          on_demand_media_id: string | null
+          on_demand_updated_at: string | null
+          post_type: string | null
+          price: number | null
+          profile_avatar_url: string | null
+          profile_full_name: string | null
+          profile_id: string | null
+          recommended_environment: string | null
+          service_subtype: Database["public"]["Enums"]["event_type_enum"] | null
+          session_theme: string | null
+          slug: string | null
+          spiritual_elements: string | null
+          spotify_playlist_ids: string[] | null
+          spotify_playlist_iframes: string[] | null
+          status: string | null
+          tags: string[] | null
+          thumbnail_url: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+          yoga_style: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       add_emotional_focuses: {
@@ -1953,17 +3901,6 @@ export type Database = {
           p_emotional_focuses: string[]
         }
         Returns: undefined
-      }
-      add_event_buffer: {
-        Args: {
-          p_start_date: string
-          p_end_date: string
-          p_buffer_minutes?: number
-        }
-        Returns: {
-          buffered_start: string
-          buffered_end: string
-        }[]
       }
       add_event_dates: {
         Args: {
@@ -2013,6 +3950,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      book_appointment: {
+        Args: {
+          p_facilitator_id: string
+          p_client_id: string
+          p_start_time: string
+          p_end_time: string
+        }
+        Returns: string
+      }
       create_article_content_with_details: {
         Args: {
           p_title: string
@@ -2022,6 +3968,7 @@ export type Database = {
           p_thumbnail_url: string
           p_tags: string[]
           p_status: Database["public"]["Enums"]["publish_status_enum"]
+          user_id?: string
         }
         Returns: Database["public"]["CompositeTypes"]["article_content_creation_result"]
       }
@@ -2071,6 +4018,7 @@ export type Database = {
           p_body_focus: string
           p_props: string[]
           p_freeform_movement: boolean
+          p_user_id?: string
         }
         Returns: Database["public"]["CompositeTypes"]["dance_content_creation_result"]
       }
@@ -2097,6 +4045,7 @@ export type Database = {
           p_room_name?: string
           p_room_password?: string
           p_location_id?: string
+          user_id?: string
         }
         Returns: Database["public"]["CompositeTypes"]["event_creation_result"]
       }
@@ -2139,6 +4088,7 @@ export type Database = {
           p_meditation_type: string
           p_meditation_theme: string
           p_meditation_focus: string
+          p_user_id?: string
         }
         Returns: Database["public"]["CompositeTypes"]["meditation_content_creation_result"]
       }
@@ -2181,6 +4131,7 @@ export type Database = {
           p_techniques_used: string
           p_session_focus: string
           p_personal_growth_outcomes: string
+          p_user_id?: string
         }
         Returns: Database["public"]["CompositeTypes"]["neuroflow_content_creation_result"]
       }
@@ -2208,6 +4159,7 @@ export type Database = {
           p_recommended_environment: string
           p_body_focus: string
           p_props: string[]
+          p_user_id?: string
         }
         Returns: Database["public"]["CompositeTypes"]["ondemand_content_creation_result"]
       }
@@ -2217,6 +4169,7 @@ export type Database = {
           p_media_type: Database["public"]["Enums"]["media_type_enum"]
           p_duration: unknown
           p_price: number
+          p_user_id?: string
         }
         Returns: string
       }
@@ -2229,6 +4182,7 @@ export type Database = {
           p_post_type: Database["public"]["Enums"]["post_type_enum"]
           p_status: Database["public"]["Enums"]["publish_status_enum"]
           p_thumbnail_url: string
+          p_user_id?: string
         }
         Returns: string
       }
@@ -2253,6 +4207,7 @@ export type Database = {
           p_price: number
           p_duration: unknown
           p_type: Database["public"]["Enums"]["event_type_enum"]
+          user_id?: string
         }
         Returns: Database["public"]["CompositeTypes"]["service_content_creation_result"]
       }
@@ -2289,6 +4244,7 @@ export type Database = {
           p_props: string[]
           p_yoga_style: string
           p_chakras: string
+          p_user_id?: string
         }
         Returns: Database["public"]["CompositeTypes"]["yoga_content_creation_result"]
       }
@@ -2301,6 +4257,13 @@ export type Database = {
       delete_comment: {
         Args: {
           in_comment_id: number
+        }
+        Returns: undefined
+      }
+      delete_playlist: {
+        Args: {
+          user_id: string
+          iframe: string
         }
         Returns: undefined
       }
@@ -2646,6 +4609,28 @@ export type Database = {
         }
         Returns: unknown
       }
+      get_availability: {
+        Args: {
+          p_user_id: string
+        }
+        Returns: {
+          day: string
+          is_active: boolean
+          start_time: string
+          end_time: string
+        }[]
+      }
+      get_available_slots: {
+        Args: {
+          p_facilitator_id: string
+          p_start_date: string
+          p_end_date: string
+        }
+        Returns: {
+          start_time: string
+          end_time: string
+        }[]
+      }
       get_comment_replies: {
         Args: {
           in_comment_id: number
@@ -2721,8 +4706,8 @@ export type Database = {
           input_post_ids?: string[]
           post_type_array?: Database["public"]["Enums"]["post_type_enum"][]
           search_title?: string
-          min_duration?: unknown
-          max_duration?: unknown
+          min_duration?: number
+          max_duration?: number
           min_energy_level?: number
           max_energy_level?: number
           min_price?: number
@@ -2752,28 +4737,123 @@ export type Database = {
           total_count: number
         }[]
       }
-      get_thread_depth: {
+      get_on_page_ceremony: {
         Args: {
-          in_comment_id: number
+          p_slug: string
         }
-        Returns: number
+        Returns: {
+          like: unknown
+          protected_media_url: string
+        }[]
       }
-      get_user_availability: {
+      get_on_page_dance: {
+        Args: {
+          p_slug: string
+        }
+        Returns: {
+          like: unknown
+          protected_media_url: string
+        }[]
+      }
+      get_on_page_meditation: {
+        Args: {
+          p_slug: string
+        }
+        Returns: {
+          like: unknown
+          protected_media_url: string
+        }[]
+      }
+      get_on_page_neuro_flow: {
+        Args: {
+          p_slug: string
+        }
+        Returns: {
+          like: unknown
+          protected_media_url: string
+        }[]
+      }
+      get_on_page_yoga: {
+        Args: {
+          p_slug: string
+        }
+        Returns: {
+          like: unknown
+          protected_media_url: string
+        }[]
+      }
+      get_pending_appointments: {
+        Args: {
+          p_facilitator_id: string
+          p_start_date: string
+          p_end_date: string
+        }
+        Returns: {
+          appointment_id: string
+          client_id: string
+          start_time: string
+          end_time: string
+        }[]
+      }
+      get_post_type_tags: {
+        Args: {
+          post_type: Database["public"]["Enums"]["post_type_enum"]
+        }
+        Returns: {
+          tag_id: string
+          tag_name: string
+        }[]
+      }
+      get_suggested_appointments: {
         Args: {
           p_user_id: string
           p_start_date: string
           p_end_date: string
         }
         Returns: {
-          availability_day: string
+          appointment_id: string
+          facilitator_id: string
+          client_id: string
           start_time: string
           end_time: string
-          debug_info: string
+        }[]
+      }
+      get_thread_depth: {
+        Args: {
+          in_comment_id: number
+        }
+        Returns: number
+      }
+      get_user_appointments: {
+        Args: {
+          p_user_id: string
+          p_start_date: string
+          p_end_date: string
+        }
+        Returns: {
+          appointment_id: string
+          facilitator_id: string
+          client_id: string
+          start_time: string
+          end_time: string
+          status: string
         }[]
       }
       grant_public_read_access: {
         Args: {
           table_name: string
+        }
+        Returns: undefined
+      }
+      iana_to_utc_offset: {
+        Args: {
+          iana_timezone: string
+        }
+        Returns: Database["public"]["Enums"]["timezone"]
+      }
+      insert_playlist: {
+        Args: {
+          iframe: string
         }
         Returns: undefined
       }
@@ -2792,6 +4872,20 @@ export type Database = {
           object_name: string
         }
         Returns: boolean
+      }
+      join_waitlist: {
+        Args: {
+          waitlist_id: string
+          email: string
+          user_id?: string
+        }
+        Returns: {
+          created_at: string | null
+          email: string
+          id: string
+          user_id: string | null
+          waitlist_id: string
+        }
       }
       leave_comment: {
         Args: {
@@ -2823,6 +4917,41 @@ export type Database = {
           assets: Database["public"]["CompositeTypes"]["video_asset_type"][]
           total_count: number
         }[]
+      }
+      random_future_date: {
+        Args: {
+          days_ahead: number
+        }
+        Returns: string
+      }
+      random_name: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      respond_to_appointment: {
+        Args: {
+          p_appointment_id: string
+          p_action: string
+          p_new_start_time?: string
+          p_new_end_time?: string
+        }
+        Returns: undefined
+      }
+      sanitize_slug: {
+        Args: {
+          input: string
+        }
+        Returns: string
+      }
+      set_availability: {
+        Args: {
+          p_user_id: string
+          p_day: string
+          p_is_active: boolean
+          p_start_time: string
+          p_end_time: string
+        }
+        Returns: undefined
       }
       set_user_timezone_claim: {
         Args: {
@@ -3069,6 +5198,8 @@ export type Database = {
         | "yoga"
         | "dance"
         | "meditation"
+        | "breath_work"
+        | "primal"
         | "ritual"
         | "ceremony"
         | "article"
@@ -3298,6 +5429,7 @@ export type Database = {
           owner_id: string | null
           path_tokens: string[] | null
           updated_at: string | null
+          user_metadata: Json | null
           version: string | null
         }
         Insert: {
@@ -3311,6 +5443,7 @@ export type Database = {
           owner_id?: string | null
           path_tokens?: string[] | null
           updated_at?: string | null
+          user_metadata?: Json | null
           version?: string | null
         }
         Update: {
@@ -3324,6 +5457,7 @@ export type Database = {
           owner_id?: string | null
           path_tokens?: string[] | null
           updated_at?: string | null
+          user_metadata?: Json | null
           version?: string | null
         }
         Relationships: [
@@ -3345,6 +5479,7 @@ export type Database = {
           key: string
           owner_id: string | null
           upload_signature: string
+          user_metadata: Json | null
           version: string
         }
         Insert: {
@@ -3355,6 +5490,7 @@ export type Database = {
           key: string
           owner_id?: string | null
           upload_signature: string
+          user_metadata?: Json | null
           version: string
         }
         Update: {
@@ -3365,6 +5501,7 @@ export type Database = {
           key?: string
           owner_id?: string | null
           upload_signature?: string
+          user_metadata?: Json | null
           version?: string
         }
         Relationships: [
@@ -3500,6 +5637,10 @@ export type Database = {
           metadata: Json
           updated_at: string
         }[]
+      }
+      operation: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       search: {
         Args: {

@@ -11,12 +11,15 @@ DECLARE
     v_user_id UUID;
 BEGIN
     v_user_id := COALESCE(p_user_id, auth.uid());
+    
+    IF v_user_id IS NULL THEN
+        RAISE EXCEPTION 'User ID is required';
+    END IF;
+
     INSERT INTO public.on_demand_media (
         post_id, user_id, media_type, duration, price
     ) VALUES (
-        p_post_id, v_user_id, p_media_type, 
-        (p_duration || ' seconds')::interval,  -- Convert seconds to interval
-        p_price
+        p_post_id, v_user_id, p_media_type, p_duration, p_price
     ) RETURNING id INTO v_ondemand_media_id;
 
     IF v_ondemand_media_id IS NULL THEN
@@ -187,8 +190,6 @@ CREATE TYPE public.ondemand_content_creation_result AS (
     protected_media_id UUID,
     slug TEXT
 );
-
-
 
 -- Main function to create on-demand content
 CREATE OR REPLACE FUNCTION public.create_ondemand_content_with_details(
