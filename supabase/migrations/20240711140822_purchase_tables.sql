@@ -1,7 +1,8 @@
 -- Modify the purchases table
 CREATE TABLE public.purchases (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    invoice_id TEXT NOT NULL,
+    invoice_id TEXT,
+    payment_intent_id TEXT,
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     post_id UUID REFERENCES public.posts(id) ON DELETE SET NULL,
     content_id UUID REFERENCES public.on_demand_media(id) ON DELETE SET NULL,
@@ -9,7 +10,11 @@ CREATE TABLE public.purchases (
     purchase_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     end_date TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    amount_received BIGINT DEFAULT NULL,
+    CONSTRAINT check_id_not_null CHECK (
+        (invoice_id IS NOT NULL OR payment_intent_id IS NOT NULL) 
+    )
 );
 
 -- Create indexes for faster lookups

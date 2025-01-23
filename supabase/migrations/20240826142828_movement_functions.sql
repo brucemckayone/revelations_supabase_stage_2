@@ -31,7 +31,8 @@ CREATE OR REPLACE FUNCTION get_filtered_movement_content(
     body_focus TEXT,
     tags TEXT,
     total_count BIGINT,
-    featured boolean
+    featured boolean,
+    updated_at TIMESTAMP WITH TIME ZONE
 ) AS $$
 DECLARE
     min_duration_interval INTERVAL;
@@ -60,7 +61,7 @@ BEGIN
         AND (post_type_array IS NULL OR p.post_type = ANY(post_type_array))
         AND (search_title IS NULL OR p.title ILIKE '%' || search_title || '%')
         AND (tag_array IS NULL OR t.name = ANY(tag_array))
-        AND (input_featured IS NULL OR p.featured = input_featured)
+        -- Remove the featured filter from here
     ),
     counted_results AS (
         SELECT 
@@ -70,7 +71,7 @@ BEGIN
             p.slug,
             p.description,
             p.thumbnail_url,
-            p.featured, -- Ensure featured is selected from the correct table
+            p.featured,
             odm.media_type,
             odm.duration,
             odm.price,
@@ -81,6 +82,7 @@ BEGIN
             m.emotional_focus,
             m.recommended_environment,
             m.body_focus,
+            p.updated_at,
             string_agg(t.name, ', ') AS tags,
             COUNT(*) OVER() AS total_count
         FROM 
@@ -102,6 +104,7 @@ BEGIN
             AND (max_energy_level IS NULL OR m.energy_level <= max_energy_level)
             AND (min_price IS NULL OR odm.price >= min_price)
             AND (max_price IS NULL OR odm.price <= max_price)
+            AND (input_featured IS NULL OR p.featured = input_featured) -- Move the featured filter here
         GROUP BY 
             p.id, odm.id, m.id
         ORDER BY 
@@ -126,7 +129,8 @@ BEGIN
         cr.body_focus,
         cr.tags,
         cr.total_count,
-        cr.featured -- Ensure featured is selected in the final result
+        cr.featured,
+        cr.updated_at
     FROM counted_results cr
     LIMIT p_limit
     OFFSET p_offset;

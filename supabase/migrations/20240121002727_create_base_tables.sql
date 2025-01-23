@@ -1,4 +1,3 @@
-
 create extension vector
 with
   schema extensions;
@@ -25,8 +24,6 @@ CREATE TYPE public.publish_status_enum AS ENUM (
     'private',
     'archived'
 );
-
-
 
 -- Create posts table
 CREATE TABLE public.posts (
@@ -60,8 +57,6 @@ CREATE TABLE IF NOT EXISTS public.embeddings (
 
 -- Create an index on the embedding column for faster similarity searches
 CREATE INDEX ON public.embeddings USING ivfflat (embedding vector_cosine_ops);
-
-
 
 -- Create or replace the function to trigger the embedding creation
 CREATE OR REPLACE FUNCTION trigger_create_embedding()
@@ -153,4 +148,47 @@ CREATE TRIGGER update_posts_modtime
 BEFORE UPDATE ON public.posts
 FOR EACH ROW
 EXECUTE FUNCTION update_modified_column();
+
+-- Function to backfill embeddings for all posts
+CREATE OR REPLACE FUNCTION backfill_embeddings()
+RETURNS void AS $$
+DECLARE
+    post_record RECORD;
+    v_request_id bigint;
+    v_error_message text;
+    my_var text;
+BEGIN
+    
+    my_var := current_setting('supabase.ANON_KEY', true);
+    
+    FOR post_record IN SELECT id, content FROM public.posts WHERE content IS NOT NULL LOOP
+        BEGIN
+            -- Make the HTTP POST request for each post
+            SELECT net.http_post(
+                url := 'http://host.docker.internal:54321/functions/v1/embeddings',
+                body := jsonb_build_object(
+                    'post_id', post_record.id,
+                    'content', post_record.content
+                ),
+                headers := jsonb_build_object(
+                    'Content-Type', 'application/json',
+                    'Authorization', 'Bearer ' || my_var,
+                    'Statement-Timeout', '600000'
+                ) 
+            ) INTO v_request_id;
+
+            -- Log success
+            RAISE NOTICE 'Embedding request sent for post %: Request ID: %', post_record.id, v_request_id;
+            
+            -- Add a small delay to prevent overwhelming the endpoint
+            PERFORM pg_sleep(0.1);
+            
+        EXCEPTION WHEN OTHERS THEN
+            -- Log error but continue processing other posts
+            GET STACKED DIAGNOSTICS v_error_message = MESSAGE_TEXT;
+            RAISE WARNING 'Error processing post %: %', post_record.id, v_error_message;
+        END;
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 

@@ -8,7 +8,7 @@ interface WebhookPayload {
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 );
 
 const model = new Supabase.ai.Session("gte-small");
@@ -26,12 +26,15 @@ Deno.serve(async (req) => {
   });
 
   // Upsert the embedding
-  const { error } = await supabase.from("embeddings").upsert({
-    post_id: post_id,
-    embedding: embedding as string,
-  }, {
-    onConflict: "post_id",
-  });
+  const { error } = await supabase.from("embeddings").upsert(
+    {
+      post_id: post_id,
+      embedding: embedding as string,
+    },
+    {
+      onConflict: "post_id",
+    }
+  );
 
   if (error) {
     console.error(error.message);
@@ -42,6 +45,6 @@ Deno.serve(async (req) => {
 
   return new Response(
     JSON.stringify({ message: "Embedding created or updated successfully" }),
-    { status: 200 },
+    { status: 200 }
   );
 });

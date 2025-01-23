@@ -158,3 +158,29 @@ CREATE TABLE IF NOT EXISTS public.video_assets (
     tracks JSONB,
     upload_id TEXT
 );
+
+
+create table
+  public.assets (
+    id uuid primary key not null,
+    status character varying(20) not null check (status in ('started', 'encoding', 'uploading', 'completed', 'failed')),
+    timestamp timestamp with time zone not null,
+    stage character varying(20),
+    progress numeric(5, 2),
+    estimated_duration integer,
+    created_at timestamp with time zone default current_timestamp
+  ) tablespace pg_default;
+
+alter table public.assets add column user_id uuid references auth.users(id) not null;
+ALTER TABLE public.assets DROP CONSTRAINT assets_status_check;
+ALTER TABLE public.assets ADD CONSTRAINT assets_status_check 
+  CHECK (status IN ('started', 'processing', 'encoding', 'uploading', 'completed', 'failed'));
+
+-- Add new columns for metadata and metrics
+ALTER TABLE public.assets ADD COLUMN metadata jsonb;
+ALTER TABLE public.assets ADD COLUMN metrics jsonb;
+ALTER TABLE public.assets ADD COLUMN output jsonb;
+
+ALTER TABLE public.assets ADD column duration float;
+
+alter publication supabase_realtime add table assets;

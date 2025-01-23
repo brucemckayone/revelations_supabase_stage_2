@@ -8,6 +8,7 @@ create table profiles (
   website text,
   constraint username_length check (char_length(username) >= 3)
 );
+
 -- Set up Row Level Security (RLS)
 -- See https://supabase.com/docs/guides/auth/row-level-security for more details.
 alter table profiles

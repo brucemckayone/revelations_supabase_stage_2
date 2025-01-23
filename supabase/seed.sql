@@ -713,4 +713,5 @@ BEGIN
     END LOOP;
 
     insert into public.waitlists (title, description) values ('become_a_creator', 'wait list for those who want to become a creator on the platform');    
+    
 END $$;

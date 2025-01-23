@@ -46,7 +46,7 @@ enabled = true
 # Port to use for Supabase Studio.
 port = 54323
 # External URL of the API server that frontend connects to.
-api_url = "http://127.0.0.1"
+api_url = "https://localsupa.revelations.studio"
 
 # Email testing server. Emails sent with the local dev setup are not actually sent - rather, they
 # are monitored, and you can view the emails that would have been sent from the web interface.
@@ -67,9 +67,9 @@ file_size_limit = "50MiB"
 enabled = true
 # The base URL of your website. Used as an allow-list for redirects and for constructing URLs used
 # in emails.
-site_url = "http://127.0.0.1:3000"
+site_url = "https://local.revelations.studio"
 # A list of *exact* URLs that auth providers are permitted to redirect to post authentication.
-additional_redirect_urls = ["http://127.0.0.1:3000","http://127.0.0.1:3000/auth/callback","http://localhost:3000","http://localhost:3000/auth/callback"]
+additional_redirect_urls = ["http://127.0.0.1:3000","http://127.0.0.1:3000/auth/callback","http://localhost:3000","http://localhost:3000/auth/callback","https://local.revelations.studio/auth/callback","https://local.revelations.studio"]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604,800 (1 week).
 jwt_expiry = 3600
 # If disabled, the refresh token will never expire.
@@ -152,19 +152,19 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 enabled = true
 client_id = "env(GOOGLE_CLIENT_ID)"
 secret = "env(GOOGLE_SECRET)"
-redirect_uri = "http://localhost:54321/auth/v1/callback"
+redirect_uri = "https://localsupa.revelations.studio/auth/v1/callback"
 
 [auth.external.facebook]
 enabled = true
 client_id = "env(FACEBOOK_CLIENT_ID)"
 secret = "env(FACEBOOK_SECRET)"
-redirect_uri = "http://localhost:54321/auth/v1/callback"
+redirect_uri = "https://localsupa.revelations.studio/auth/v1/callback"
 
 [auth.external.spotify]
 enabled = true
 client_id = "env(SPOTIFY_CLIENT_ID)"
 secret = "env(SPOTIFY_SECRET)"
-redirect_uri = "http://localhost:54321/auth/v1/callback"
+redirect_uri = "https://localsupa.revelations.studio/auth/v1/callback"
 
 # This hook runs before a token is issued and allows you to add additional claims based on the authentication method used.
 [auth.hook.custom_access_token]
