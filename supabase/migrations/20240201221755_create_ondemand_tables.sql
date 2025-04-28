@@ -164,12 +164,46 @@ create table
   public.assets (
     id uuid primary key not null,
     status character varying(20) not null check (status in ('started', 'encoding', 'uploading', 'completed', 'failed')),
-    timestamp timestamp with time zone not null,
     stage character varying(20),
     progress numeric(5, 2),
     estimated_duration integer,
     created_at timestamp with time zone default current_timestamp
   ) tablespace pg_default;
+
+
+-- TODO: Add user_id to assets table  join asset id with user_id and delete  the asset id in cloud flare
+-- Create the trigger function
+CREATE OR REPLACE FUNCTION delete_failed_asset()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.status = 'failed' THEN
+        -- Make HTTP POST request
+        -- PERFORM http_post(
+        --     'https://your-api-endpoint/asset-failed',
+        --     json_build_object(
+        --         'asset_id', NEW.id,
+        --         'timestamp', NEW.timestamp,
+        --         'stage', NEW.stage
+        --     )::text,
+        --     'application/json'
+        -- );
+        
+        -- Delete the failed asset
+        DELETE FROM public.assets WHERE id = NEW.id;
+        
+        RETURN NULL;
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create the trigger
+CREATE TRIGGER handle_failed_asset
+    BEFORE UPDATE ON public.assets
+    FOR EACH ROW
+    EXECUTE FUNCTION delete_failed_asset();
+
 
 alter table public.assets add column user_id uuid references auth.users(id) not null;
 ALTER TABLE public.assets DROP CONSTRAINT assets_status_check;
@@ -182,5 +216,6 @@ ALTER TABLE public.assets ADD COLUMN metrics jsonb;
 ALTER TABLE public.assets ADD COLUMN output jsonb;
 
 ALTER TABLE public.assets ADD column duration float;
+ALTER TABLE public.assets ADD column media_type media_type_enum;
 
 alter publication supabase_realtime add table assets;

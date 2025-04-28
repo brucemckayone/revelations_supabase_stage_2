@@ -11,7 +11,8 @@ CREATE OR REPLACE FUNCTION get_filtered_movement_content(
     max_price NUMERIC DEFAULT NULL,
     tag_array TEXT[] DEFAULT NULL,
     p_limit INT DEFAULT 10,
-    p_offset INT DEFAULT 0
+    p_offset INT DEFAULT 0,
+    p_media_key TEXT DEFAULT NULL
 ) RETURNS TABLE (
     post_id UUID,
     post_type post_type_enum,
@@ -32,7 +33,8 @@ CREATE OR REPLACE FUNCTION get_filtered_movement_content(
     tags TEXT,
     total_count BIGINT,
     featured boolean,
-    updated_at TIMESTAMP WITH TIME ZONE
+    updated_at TIMESTAMP WITH TIME ZONE,
+    media_key TEXT
 ) AS $$
 DECLARE
     min_duration_interval INTERVAL;
@@ -84,13 +86,16 @@ BEGIN
             m.body_focus,
             p.updated_at,
             string_agg(t.name, ', ') AS tags,
-            COUNT(*) OVER() AS total_count
+            COUNT(*) OVER() AS total_count,
+            pmd.url as media_key
         FROM 
             filtered_posts fp
         JOIN
             posts p ON fp.id = p.id
         JOIN
             on_demand_media odm ON p.id = odm.post_id
+        LEFT JOIN
+            public.protected_media_data pmd ON odm.id = pmd.content_id
         JOIN
             movements m ON odm.id = m.content_id
         LEFT JOIN
@@ -104,9 +109,10 @@ BEGIN
             AND (max_energy_level IS NULL OR m.energy_level <= max_energy_level)
             AND (min_price IS NULL OR odm.price >= min_price)
             AND (max_price IS NULL OR odm.price <= max_price)
-            AND (input_featured IS NULL OR p.featured = input_featured) -- Move the featured filter here
+            AND (input_featured IS NULL OR p.featured = input_featured)
+            AND (p_media_key IS NULL OR pmd.url = p_media_key)
         GROUP BY 
-            p.id, odm.id, m.id
+            p.id, odm.id, m.id, pmd.url
         ORDER BY 
             p.created_at DESC
     )
@@ -130,7 +136,8 @@ BEGIN
         cr.tags,
         cr.total_count,
         cr.featured,
-        cr.updated_at
+        cr.updated_at,
+        cr.media_key
     FROM counted_results cr
     LIMIT p_limit
     OFFSET p_offset;

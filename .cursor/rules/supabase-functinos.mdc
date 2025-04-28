@@ -1,0 +1,141 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+1---
+2# Specify the following for Cursor rules
+3description: Guidelines for writing Supabase database functions
+4alwaysApply: false
+5---
+6
+7# Database: Create functions
+8
+9You're a Supabase Postgres expert in writing database functions. Generate **high-quality PostgreSQL functions** that adhere to the following best practices:
+10
+11## General Guidelines
+12
+131. **Default to `SECURITY INVOKER`:**
+14
+15   - Functions should run with the permissions of the user invoking the function, ensuring safer access control.
+16   - Use `SECURITY DEFINER` only when explicitly required and explain the rationale.
+17
+182. **Set the `search_path` Configuration Parameter:**
+19
+20   - Always set `search_path` to an empty string (`set search_path = '';`).
+21   - This avoids unexpected behavior and security risks caused by resolving object references in untrusted or unintended schemas.
+22   - Use fully qualified names (e.g., `schema_name.table_name`) for all database objects referenced within the function.
+23
+243. **Adhere to SQL Standards and Validation:**
+25   - Ensure all queries within the function are valid PostgreSQL SQL queries and compatible with the specified context (ie. Supabase).
+26
+27## Best Practices
+28
+291. **Minimize Side Effects:**
+30
+31   - Prefer functions that return results over those that modify data unless they serve a specific purpose (e.g., triggers).
+32
+332. **Use Explicit Typing:**
+34
+35   - Clearly specify input and output types, avoiding ambiguous or loosely typed parameters.
+36
+373. **Default to Immutable or Stable Functions:**
+38
+39   - Where possible, declare functions as `IMMUTABLE` or `STABLE` to allow better optimization by PostgreSQL. Use `VOLATILE` only if the function modifies data or has side effects.
+40
+414. **Triggers (if Applicable):**
+42   - If the function is used as a trigger, include a valid `CREATE TRIGGER` statement that attaches the function to the desired table and event (e.g., `BEFORE INSERT`).
+43
+44## Example Templates
+45
+46### Simple Function with `SECURITY INVOKER`
+47
+48```sql
+49create or replace function my_schema.hello_world()
+50returns text
+51language plpgsql
+52security invoker
+53set search_path = ''
+54as $$
+55begin
+56  return 'hello world';
+57end;
+58$$;
+59```
+60
+61### Function with Parameters and Fully Qualified Object Names
+62
+63```sql
+64create or replace function public.calculate_total_price(order_id bigint)
+65returns numeric
+66language plpgsql
+67security invoker
+68set search_path = ''
+69as $$
+70declare
+71  total numeric;
+72begin
+73  select sum(price * quantity)
+74  into total
+75  from public.order_items
+76  where order_id = calculate_total_price.order_id;
+77
+78  return total;
+79end;
+80$$;
+81```
+82
+83### Function as a Trigger
+84
+85```sql
+86create or replace function my_schema.update_updated_at()
+87returns trigger
+88language plpgsql
+89security invoker
+90set search_path = ''
+91as $$
+92begin
+93  -- Update the "updated_at" column on row modification
+94  new.updated_at := now();
+95  return new;
+96end;
+97$$;
+98
+99create trigger update_updated_at_trigger
+100before update on my_schema.my_table
+101for each row
+102execute function my_schema.update_updated_at();
+103```
+104
+105### Function with Error Handling
+106
+107```sql
+108create or replace function my_schema.safe_divide(numerator numeric, denominator numeric)
+109returns numeric
+110language plpgsql
+111security invoker
+112set search_path = ''
+113as $$
+114begin
+115  if denominator = 0 then
+116    raise exception 'Division by zero is not allowed';
+117  end if;
+118
+119  return numerator / denominator;
+120end;
+121$$;
+122```
+123
+124### Immutable Function for Better Optimization
+125
+126```sql
+127create or replace function my_schema.full_name(first_name text, last_name text)
+128returns text
+129language sql
+130security invoker
+131set search_path = ''
+132immutable
+133as $$
+134  select first_name || ' ' || last_name;
+135$$;
+136```

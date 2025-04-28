@@ -25,7 +25,8 @@ CREATE OR REPLACE FUNCTION public.create_ceremony_content_with_details(
     p_ceremony_theme TEXT,
     p_ceremony_focus TEXT,
     p_what_to_bring TEXT,
-    p_space_holder_names TEXT
+    p_space_holder_names TEXT,
+    p_user_id UUID DEFAULT NULL
 ) RETURNS ceremony_content_creation_result AS $$
 DECLARE
     v_post_id UUID;
@@ -42,7 +43,8 @@ BEGIN
         p_content,
         'ceremony'::post_type_enum,
         p_status,
-        p_thumbnail_url
+        p_thumbnail_url,
+        p_user_id
     );
 
     -- Add tags to the post

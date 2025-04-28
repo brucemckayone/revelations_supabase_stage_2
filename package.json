@@ -13,5 +13,8 @@
     "@snaplet/seed": "^0.98.0",
     "@types/pg": "^8.11.8",
     "pg": "^8.12.0"
+  },
+  "dependencies": {
+    "zod-to-json-schema": "^3.24.3"
   }
 }

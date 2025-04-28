@@ -43,6 +43,44 @@ CREATE TABLE public.posts (
     CONSTRAINT title_length CHECK (char_length(title) >= 3 AND char_length(title) <= 255)
 );
 
+-- Function to ensure unique slugs
+CREATE OR REPLACE FUNCTION ensure_unique_slug()
+RETURNS TRIGGER AS $$
+DECLARE
+    base_slug TEXT;
+    new_slug TEXT;
+    counter INTEGER := 1;
+    slug_exists BOOLEAN;
+BEGIN
+    -- Use the provided slug as base_slug
+    base_slug := NEW.slug;
+    new_slug := base_slug;
+    
+    -- Check if the slug already exists
+    LOOP
+        SELECT EXISTS (
+            SELECT 1 FROM public.posts WHERE slug = new_slug
+        ) INTO slug_exists;
+        
+        EXIT WHEN NOT slug_exists;
+        
+        -- If it exists, append counter and increment
+        new_slug := base_slug || '-' || counter;
+        counter := counter + 1;
+    END LOOP;
+    
+    -- Set the unique slug
+    NEW.slug := new_slug;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create trigger to ensure unique slug before insert
+CREATE TRIGGER ensure_unique_slug_trigger
+BEFORE INSERT ON public.posts
+FOR EACH ROW
+EXECUTE FUNCTION ensure_unique_slug();
 
 -- Create indexes for posts table
 CREATE INDEX idx_posts_user_id ON public.posts(user_id);

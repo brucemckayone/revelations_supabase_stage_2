@@ -11,16 +11,36 @@ CREATE OR REPLACE FUNCTION public.create_post(
 DECLARE
     v_post_id UUID;
     v_user_id UUID;
+    v_slug TEXT := p_slug;
+    v_counter INTEGER := 1;
 BEGIN
     v_user_id := COALESCE(p_user_id, auth.uid());
 
-    INSERT INTO public.posts (
-        user_id, title, slug, description, content, post_type, status, thumbnail_url
-    ) VALUES (
-        v_user_id, p_title, p_slug, p_description, p_content, p_post_type, p_status, p_thumbnail_url
-    ) RETURNING id INTO v_post_id;
-
-    RETURN v_post_id;
+    -- Keep trying with modified slugs until one works
+    LOOP
+        BEGIN
+            INSERT INTO public.posts (
+                user_id, title, slug, description, content, post_type, status, thumbnail_url
+            ) VALUES (
+                v_user_id, p_title, v_slug, p_description, p_content, p_post_type, p_status, p_thumbnail_url
+            ) RETURNING id INTO v_post_id;
+            
+            -- If we get here, the insertion succeeded
+            RETURN v_post_id;
+            
+        EXCEPTION 
+            WHEN unique_violation THEN
+                -- Check if the violation is specifically for the slug
+                IF SQLERRM LIKE '%posts_slug_key%' THEN
+                    -- Modify slug and retry
+                    v_slug := p_slug || '-' || v_counter;
+                    v_counter := v_counter + 1;
+                ELSE
+                    -- If it's a different unique violation, reraise the exception
+                    RAISE;
+                END IF;
+        END;
+    END LOOP;
 END;
 $$ LANGUAGE plpgsql SECURITY invoker;
 
