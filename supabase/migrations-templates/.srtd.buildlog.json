@@ -1,5 +1,41 @@
 {
   "version": "1.0",
-  "lastTimestamp": "",
-  "templates": {}
+  "lastTimestamp": "20250503151706",
+  "templates": {
+    "supabase/migrations-templates/transcripts.sql": {
+      "lastBuildHash": "6868cda80b2d5883d8b103ef51e29b37",
+      "lastBuildDate": "2025-05-03T15:17:00.173Z",
+      "lastMigrationFile": "20250503151700_srtd-transcripts.sql"
+    },
+    "supabase/migrations-templates/profile_cards_view.sql": {
+      "lastBuildHash": "a24c1f07cb116b7e5113da159b9c7e0b",
+      "lastBuildDate": "2025-05-03T15:17:00.174Z",
+      "lastMigrationFile": "20250503151701_srtd-profile_cards_view.sql"
+    },
+    "supabase/migrations-templates/fallback_on_demand_functions.sql": {
+      "lastBuildHash": "37e0856e1bc0db06426325b4473497f3",
+      "lastBuildDate": "2025-05-03T15:17:00.177Z",
+      "lastMigrationFile": "20250503151702_srtd-fallback_on_demand_functions.sql"
+    },
+    "supabase/migrations-templates/creators_views.sql": {
+      "lastBuildHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "lastBuildDate": "2025-05-03T15:17:00.185Z",
+      "lastMigrationFile": "20250503151703_srtd-creators_views.sql"
+    },
+    "supabase/migrations-templates/creator_profiles_complete_view.sql": {
+      "lastBuildHash": "2764356b14ce149ed37f3ce5a866c54e",
+      "lastBuildDate": "2025-05-03T15:17:00.188Z",
+      "lastMigrationFile": "20250503151704_srtd-creator_profiles_complete_view.sql"
+    },
+    "supabase/migrations-templates/creator_profile_table.sql": {
+      "lastBuildHash": "a6f247de1a14ffa2f06292f74f2d4115",
+      "lastBuildDate": "2025-05-03T15:17:00.189Z",
+      "lastMigrationFile": "20250503151705_srtd-creator_profile_table.sql"
+    },
+    "supabase/migrations-templates/chat.sql": {
+      "lastBuildHash": "e1f61d2bd501c9c536a2887666354e37",
+      "lastBuildDate": "2025-05-03T15:17:00.191Z",
+      "lastMigrationFile": "20250503151706_srtd-chat.sql"
+    }
+  }
 }
