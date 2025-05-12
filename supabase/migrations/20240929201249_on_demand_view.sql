@@ -27,3 +27,4 @@ LEFT JOIN
         GROUP BY
             spj.content_id
     ) sp ON odm.id = sp.content_id;
+

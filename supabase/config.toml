@@ -19,7 +19,7 @@ max_rows = 1000
 # Port to use for the local database URL.
 port = 54322
 # Port used by db diff command to initialize the shadow database.
-shadow_port = 54320
+shadow_port = 54320 
 # The database major version to use. This has to be the same as your remote database's. Run `SHOW
 # server_version;` on the remote database to check.
 major_version = 15
@@ -170,8 +170,3 @@ redirect_uri = "https://localsupa.revelations.studio/auth/v1/callback"
 [auth.hook.custom_access_token]
 enabled = true
 uri = "pg-functions://postgres/public/custom_access_token_hook"
-
-[auth.hook.user_timezone]
-enabled = true
-uri = "pg-functions://postgres/public/set_user_timezone_claim"
-

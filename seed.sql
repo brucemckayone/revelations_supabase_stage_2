@@ -36,8 +36,6 @@ DO $$
 DECLARE
     current_user_id UUID := 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'; -- brucemckayone@gmail.com
     current_creator_id UUID := 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'; -- same user is also a creator
-    admin_user_id UUID := 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12'; -- brucemckayone@gmail.com
-    admin_creator_id UUID := 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13'; -- same user is also a creator
     playlist_ids UUID[];
     session_names TEXT[] := ARRAY[
         'Morning Revitalize', 'Sunset Serenity', 'Midday Recharge',
@@ -197,19 +195,6 @@ BEGIN
                     'email_verified', true,
                     'phone_verified', false
                 )
-            WHEN ROW_NUMBER() OVER () = 2 THEN
-                jsonb_build_object(
-                    'name', 'Admin User',
-                    'email', 'admin@example.com',
-                    'picture', 'https://example.com/admin-avatar.png',
-                    'timezone', 'UTC+00:00',
-                    'full_name', 'Admin User',
-                    'user_role', 'admin',
-                    'avatar_url', 'https://example.com/admin-avatar.png',
-                    'user_timezone', 'UTC+00:00',
-                    'email_verified', true,
-                    'phone_verified', false
-                )   
             ELSE
                 jsonb_build_object(
                     'name', random_name(),
@@ -257,9 +242,8 @@ BEGIN
     FROM
         auth.users;
 
-    -- Give admin privileges to main user (instead of creator role)
     UPDATE public.user_roles
-    SET role = 'admin'
+    SET role = 'creator'
     WHERE user_id = current_creator_id;
 
     -- Insert tags for each post type
@@ -809,7 +793,6 @@ DECLARE
     appointment_slots TIMESTAMP WITH TIME ZONE[];
     used_slots TIMESTAMP WITH TIME ZONE[];
     current_date_index INTEGER := 1;
-    provider_bookings JSONB;
     
     -- Dates
     start_date TIMESTAMP WITH TIME ZONE;
@@ -959,30 +942,35 @@ BEGIN
         END IF;
     END LOOP;
     
-    -- Create fresh appointment slot array to avoid any possibility of conflicts
-    appointment_slots := ARRAY[]::TIMESTAMP WITH TIME ZONE[];
-    
-    -- Track provider appointments to ensure no conflicts
-    provider_bookings := jsonb_build_object();
-    
-    -- Generate appointment slots with wide spacing - one per day, alternating times
-    -- This guarantees no time conflicts for same provider
-    FOR i IN 1..90 LOOP
+    -- Generate non-conflicting appointment slots over the next 30 days
+    -- Morning slots (10 AM) for each day
+    FOR i IN 1..30 LOOP
         appointment_slots := array_append(
             appointment_slots, 
-            (CURRENT_DATE + ((i+2) || ' days')::INTERVAL + 
-             ((CASE i % 3 
-                WHEN 0 THEN '09:00:00'
-                WHEN 1 THEN '14:00:00'
-                ELSE '18:00:00'
-              END)::TIME))::TIMESTAMP WITH TIME ZONE
+            (CURRENT_DATE + (i || ' days')::INTERVAL + '10:00:00'::TIME)::TIMESTAMP WITH TIME ZONE
+        );
+    END LOOP;
+
+    -- Afternoon slots (2 PM) for each day
+    FOR i IN 1..30 LOOP
+        appointment_slots := array_append(
+            appointment_slots, 
+            (CURRENT_DATE + (i || ' days')::INTERVAL + '14:00:00'::TIME)::TIMESTAMP WITH TIME ZONE
+        );
+    END LOOP;
+
+    -- Evening slots (6 PM) for each day
+    FOR i IN 1..30 LOOP
+        appointment_slots := array_append(
+            appointment_slots, 
+            (CURRENT_DATE + (i || ' days')::INTERVAL + '18:00:00'::TIME)::TIMESTAMP WITH TIME ZONE
         );
     END LOOP;
     
-    -- 3. Service appointments with non-conflicting dates - MAX 3 appointments total to avoid any conflicts
-    FOR i IN 1..LEAST(3, COALESCE(ARRAY_LENGTH(service_ids, 1), 0)) LOOP
-        -- Skip if we're running out of slots (shouldn't happen with 90 slots)
-        IF i > array_length(appointment_slots, 1) THEN
+    -- 3. Service appointments with non-conflicting dates
+    FOR i IN 1..COALESCE(ARRAY_LENGTH(service_ids, 1), 0) LOOP
+        -- Skip if we've run out of available slots
+        IF current_date_index > array_length(appointment_slots, 1) THEN
             CONTINUE;
         END IF;
         
@@ -1001,8 +989,9 @@ BEGIN
         payment_amount := (49.99 + (RANDOM() * 100))::NUMERIC(10,2);
         service_id := service_ids[i];
         
-        -- Use a different slot for each appointment - guaranteed no conflicts
-        appointment_date := appointment_slots[i];
+        -- Get a unique appointment slot
+        appointment_date := appointment_slots[current_date_index];
+        current_date_index := current_date_index + 1;
         
         -- Keep track of used slots
         used_slots := array_append(used_slots, appointment_date);
@@ -1032,15 +1021,20 @@ BEGIN
                 (ARRAY['reading', 'healing', 'coaching', 'consultation'])[1 + (i % 4)],
                 CASE
                     WHEN random_status = 'completed' THEN 'confirmed'
-                    ELSE 'pending_approval'
+                    ELSE 'pending'
                 END,
                 'Client notes: Looking forward to this session!'
             );
         END IF;
     END LOOP;
     
-     -- Extra direct service appointment purchases - MAX 5 with huge spacing to avoid conflicts
-    FOR i IN 1..5 LOOP
+    -- Extra direct service appointment purchases using actual service IDs with non-conflicting dates
+    FOR i IN 1..10 LOOP
+        -- Skip if we've run out of available slots
+        IF current_date_index > array_length(appointment_slots, 1) THEN
+            CONTINUE;
+        END IF;
+        
         -- Select a random buyer from our user pool
         buyer_id := random_user_ids[1 + (i % array_length(random_user_ids, 1))];
         
@@ -1060,9 +1054,12 @@ BEGIN
         payment_intent := 'pi_' || MD5(RANDOM()::TEXT);
         payment_amount := (49.99 + (RANDOM() * 100))::NUMERIC(10,2);
         
-        -- Use a totally different time slot (afternoon) with huge gaps
-        -- This guarantees no conflicts with the morning appointments above
-        appointment_date := CURRENT_DATE + (((i+5)*10) || ' days')::INTERVAL + '14:00:00'::TIME;
+        -- Get a unique appointment slot
+        appointment_date := appointment_slots[current_date_index];
+        current_date_index := current_date_index + 1;
+        
+        -- Keep track of used slots
+        used_slots := array_append(used_slots, appointment_date);
         
         -- Insert purchase
         INSERT INTO public.purchases (

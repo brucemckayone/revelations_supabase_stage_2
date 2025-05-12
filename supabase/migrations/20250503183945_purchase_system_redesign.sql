@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS public.purchases (
     stripe_subscription_id TEXT,
     stripe_customer_id TEXT,
     amount NUMERIC(10, 2) NOT NULL,
-    currency TEXT NOT NULL DEFAULT 'USD',
+    currency TEXT NOT NULL DEFAULT 'GBP',
     payment_status TEXT NOT NULL CHECK (payment_status IN ('completed', 'pending', 'refunded', 'failed')),
     
     -- Item references (only one should be non-null)
@@ -60,12 +60,13 @@ CREATE TABLE IF NOT EXISTS public.purchases (
     -- Additional fields
     quantity INTEGER NOT NULL DEFAULT 1,
     metadata JSONB, -- For type-specific additional data
-    
+    completed_at TIMESTAMP WITH TIME ZONE,
+    ended_at TIMESTAMP WITH TIME ZONE,
+    refunded_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     
     CONSTRAINT check_only_one_item_type CHECK (
-        (post_id IS NOT NULL)::integer +
         (content_id IS NOT NULL)::integer +
         (service_id IS NOT NULL)::integer +
         (event_id IS NOT NULL)::integer <= 1
@@ -111,7 +112,7 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
     
     -- Subscription details
     plan_name TEXT NOT NULL,
-    tier TEXT NOT NULL CHECK (tier IN ('basic', 'premium', 'unlimited')),
+    tier TEXT NOT NULL CHECK (tier IN ('basic', 'premium', 'unlimited', 'bronze', 'silver', 'gold', 'platinum')),
     billing_cycle TEXT NOT NULL CHECK (billing_cycle IN ('monthly', 'quarterly', 'annual')),
     
     -- Status tracking
@@ -251,6 +252,7 @@ CREATE TABLE IF NOT EXISTS public.stripe_webhook_events (
     data JSONB NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     processed BOOLEAN DEFAULT FALSE,
+    processed_at TIMESTAMP WITH TIME ZONE,
     processing_error TEXT
 );
 
@@ -776,6 +778,198 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Function to process event booking payment and ensure event_booking record exists
+CREATE OR REPLACE FUNCTION process_event_booking_payment(
+  p_purchase_id UUID,
+  p_payment_intent_id TEXT,
+  p_ticket_id UUID,
+  p_date_id UUID,
+  p_attendees INTEGER DEFAULT 1,
+  p_is_virtual BOOLEAN DEFAULT FALSE
+)
+RETURNS JSONB
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_event_id UUID;
+  v_booking_id UUID;
+  v_result JSONB;
+BEGIN
+  -- First, verify and update the purchase
+  UPDATE purchases
+  SET 
+    payment_status = 'completed',
+    completed_at = NOW(),
+    updated_at = NOW()
+  WHERE id = p_purchase_id
+  AND stripe_payment_intent_id = p_payment_intent_id
+  RETURNING event_id INTO v_event_id;
+  
+  IF v_event_id IS NULL THEN
+    RAISE EXCEPTION 'Purchase not found or payment intent mismatch';
+  END IF;
+  
+  -- Check if event_booking record exists
+  SELECT id INTO v_booking_id
+  FROM event_bookings
+  WHERE purchase_id = p_purchase_id;
+  
+  IF v_booking_id IS NOT NULL THEN
+    -- Update existing booking
+    UPDATE event_bookings
+    SET
+      status = 'confirmed',
+      updated_at = NOW()
+    WHERE id = v_booking_id;
+    
+    v_result = jsonb_build_object(
+      'success', true,
+      'purchase_id', p_purchase_id,
+      'booking_id', v_booking_id,
+      'status', 'updated'
+    );
+  ELSE
+    -- Create new booking record
+    INSERT INTO event_bookings (
+      purchase_id,
+      event_id,
+      ticket_id,
+      date_id,
+      attendees,
+      is_virtual,
+      status,
+      ticket_code
+    ) VALUES (
+      p_purchase_id,
+      v_event_id,
+      p_ticket_id,
+      p_date_id,
+      p_attendees,
+      p_is_virtual,
+      'confirmed',
+      'TIX-' || UPPER(SUBSTRING(MD5(RANDOM()::TEXT) FOR 8))
+    )
+    RETURNING id INTO v_booking_id;
+    
+    v_result = jsonb_build_object(
+      'success', true,
+      'purchase_id', p_purchase_id,
+      'booking_id', v_booking_id,
+      'status', 'created'
+    );
+  END IF;
+  
+  RETURN v_result;
+EXCEPTION WHEN OTHERS THEN
+  RETURN jsonb_build_object(
+    'success', false,
+    'error', SQLERRM,
+    'purchase_id', p_purchase_id
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+-- Add a comment to the function
+COMMENT ON FUNCTION process_event_booking_payment IS 'Processes an event booking payment, ensuring the event_booking record exists and has correct status.';
+
+-- Function to process appointment payment and ensure appointment_purchase record exists
+CREATE OR REPLACE FUNCTION process_appointment_payment(
+  p_purchase_id UUID,
+  p_payment_intent_id TEXT,
+  p_service_id UUID,
+  p_appointment_date TIMESTAMP WITH TIME ZONE,
+  p_duration INTEGER DEFAULT 60,
+  p_method TEXT DEFAULT 'video',
+  p_service_type TEXT DEFAULT 'consultation',
+  p_notes TEXT DEFAULT NULL
+)
+RETURNS JSONB
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_service_id UUID;
+  v_appointment_id UUID;
+  v_result JSONB;
+BEGIN
+  -- First, verify and update the purchase
+  UPDATE purchases
+  SET 
+    payment_status = 'completed',
+    completed_at = NOW(),
+    updated_at = NOW()
+  WHERE id = p_purchase_id
+  AND stripe_payment_intent_id = p_payment_intent_id
+  RETURNING service_id INTO v_service_id;
+  
+  IF v_service_id IS NULL THEN
+    RAISE EXCEPTION 'Purchase not found or payment intent mismatch';
+  END IF;
+  
+  -- Check if appointment_purchase record exists
+  SELECT id INTO v_appointment_id
+  FROM appointment_purchases
+  WHERE purchase_id = p_purchase_id;
+  
+  IF v_appointment_id IS NOT NULL THEN
+    -- Update existing appointment
+    UPDATE appointment_purchases
+    SET
+      status = 'confirmed',
+      updated_at = NOW()
+    WHERE id = v_appointment_id;
+    
+    v_result = jsonb_build_object(
+      'success', true,
+      'purchase_id', p_purchase_id,
+      'appointment_id', v_appointment_id,
+      'status', 'updated'
+    );
+  ELSE
+    -- Create new appointment record
+    INSERT INTO appointment_purchases (
+      purchase_id,
+      service_id,
+      appointment_date,
+      duration,
+      method,
+      service_type,
+      status,
+      notes
+    ) VALUES (
+      p_purchase_id,
+      v_service_id,
+      p_appointment_date,
+      p_duration,
+      p_method,
+      p_service_type,
+      'confirmed',
+      p_notes
+    )
+    RETURNING id INTO v_appointment_id;
+    
+    v_result = jsonb_build_object(
+      'success', true,
+      'purchase_id', p_purchase_id,
+      'appointment_id', v_appointment_id,
+      'status', 'created'
+    );
+  END IF;
+  
+  RETURN v_result;
+EXCEPTION WHEN OTHERS THEN
+  RETURN jsonb_build_object(
+    'success', false,
+    'error', SQLERRM,
+    'purchase_id', p_purchase_id
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+-- Add a comment to the function
+COMMENT ON FUNCTION process_appointment_payment IS 'Processes an appointment payment, ensuring the appointment_purchase record exists and has correct status.';
+
 -- 10. Grant permissions
 GRANT SELECT, INSERT, UPDATE ON public.purchases TO authenticated;
 GRANT SELECT, INSERT, UPDATE ON public.subscriptions TO authenticated;
@@ -794,3 +988,5 @@ GRANT EXECUTE ON FUNCTION get_appointment_sales TO authenticated;
 GRANT EXECUTE ON FUNCTION get_content_sales TO authenticated;
 GRANT EXECUTE ON FUNCTION get_event_bookings TO authenticated;
 GRANT EXECUTE ON FUNCTION get_subscriptions TO authenticated;
+GRANT EXECUTE ON FUNCTION process_event_booking_payment TO authenticated;
+GRANT EXECUTE ON FUNCTION process_appointment_payment TO authenticated;

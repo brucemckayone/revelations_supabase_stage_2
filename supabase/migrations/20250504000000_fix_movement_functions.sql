@@ -1,4 +1,10 @@
--- Add a new version of the function with fully qualified column names
+-- Fix ambiguous column references in movement functions
+-- Replaces get_filtered_movement_content with a version that uses fully qualified column names
+
+-- First drop the existing version of the function
+DROP FUNCTION IF EXISTS get_filtered_movement_content;
+
+-- Re-create the function with updated column references
 CREATE OR REPLACE FUNCTION get_filtered_movement_content(
     input_post_ids UUID[] DEFAULT NULL,
     input_featured boolean DEFAULT NULL,
@@ -144,3 +150,6 @@ BEGIN
     OFFSET p_offset;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Grant execute permissions on functions
+GRANT EXECUTE ON FUNCTION get_filtered_movement_content TO authenticated; 
