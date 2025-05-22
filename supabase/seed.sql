@@ -787,8 +787,8 @@ DECLARE
     ticket_id UUID;
     date_id UUID;
     service_ids UUID[];
-    statuses TEXT[] := ARRAY['completed', 'pending', 'refunded', 'failed'];
-    random_status TEXT;
+    statuses purchase_payment_status_enum[] := ARRAY['completed'::purchase_payment_status_enum, 'pending'::purchase_payment_status_enum, 'refunded'::purchase_payment_status_enum, 'failed'::purchase_payment_status_enum];
+    random_status purchase_payment_status_enum;
     i INTEGER;
     
     -- Payment data
@@ -862,10 +862,10 @@ BEGIN
         
         -- Generate random status with 70% completed, 10% each for others
         random_status := CASE
-            WHEN RANDOM() < 0.7 THEN 'completed'
-            WHEN RANDOM() < 0.8 THEN 'pending'
-            WHEN RANDOM() < 0.9 THEN 'refunded'
-            ELSE 'failed'
+            WHEN RANDOM() < 0.7 THEN 'completed'::purchase_payment_status_enum
+            WHEN RANDOM() < 0.8 THEN 'pending'::purchase_payment_status_enum
+            WHEN RANDOM() < 0.9 THEN 'refunded'::purchase_payment_status_enum
+            ELSE 'failed'::purchase_payment_status_enum
         END;
         
         payment_intent := 'pi_' || MD5(RANDOM()::TEXT);
@@ -879,13 +879,13 @@ BEGIN
             quantity, metadata
         ) VALUES (
             buyer_id, current_creator_id::UUID, payment_intent, payment_amount, 'USD',
-            random_status, content_id, 'content', 
+            random_status::purchase_payment_status_enum, content_id, 'content'::purchase_type_enum, 
             NOW() - (RANDOM() * 90 || ' days')::INTERVAL,
             1, jsonb_build_object('payment_method', 'card')
         ) RETURNING id INTO purchase_id;
         
         -- Insert content purchase details
-        IF random_status IN ('completed', 'pending') THEN
+        IF random_status IN ('completed'::purchase_payment_status_enum, 'pending'::purchase_payment_status_enum) THEN
             INSERT INTO public.content_purchases (
                 purchase_id, content_id, download_count, last_accessed, 
                 is_subscription, access_expires_at
@@ -906,10 +906,10 @@ BEGIN
         
         -- Generate random status with 70% completed, 10% each for others
         random_status := CASE
-            WHEN RANDOM() < 0.7 THEN 'completed'
-            WHEN RANDOM() < 0.8 THEN 'pending'
-            WHEN RANDOM() < 0.9 THEN 'refunded'
-            ELSE 'failed'
+            WHEN RANDOM() < 0.7 THEN 'completed'::purchase_payment_status_enum
+            WHEN RANDOM() < 0.8 THEN 'pending'::purchase_payment_status_enum
+            WHEN RANDOM() < 0.9 THEN 'refunded'::purchase_payment_status_enum
+            ELSE 'failed'::purchase_payment_status_enum
         END;
         
         payment_intent := 'pi_' || MD5(RANDOM()::TEXT);
@@ -941,7 +941,7 @@ BEGIN
             ) RETURNING id INTO purchase_id;
             
             -- Insert event booking details
-            IF random_status IN ('completed', 'pending') THEN
+            IF random_status IN ('completed'::purchase_payment_status_enum, 'pending'::purchase_payment_status_enum) THEN
                 INSERT INTO public.event_bookings (
                     purchase_id, event_id, ticket_id, date_id, 
                     attendees, is_virtual, status, ticket_code
@@ -950,7 +950,7 @@ BEGIN
                     1 + FLOOR(RANDOM() * 3)::INTEGER, -- 1-3 attendees
                     RANDOM() > 0.5, -- 50% virtual
                     CASE
-                        WHEN random_status = 'completed' THEN 'confirmed'
+                        WHEN random_status = 'completed'::purchase_payment_status_enum THEN 'confirmed'
                         ELSE 'pending'
                     END,
                     'TIX-' || UPPER(MD5(RANDOM()::TEXT))
@@ -991,10 +991,10 @@ BEGIN
         
         -- Generate random status with 70% completed, 10% each for others
         random_status := CASE
-            WHEN RANDOM() < 0.7 THEN 'completed'
-            WHEN RANDOM() < 0.8 THEN 'pending'
-            WHEN RANDOM() < 0.9 THEN 'refunded'
-            ELSE 'failed'
+            WHEN RANDOM() < 0.7 THEN 'completed'::purchase_payment_status_enum
+            WHEN RANDOM() < 0.8 THEN 'pending'::purchase_payment_status_enum
+            WHEN RANDOM() < 0.9 THEN 'refunded'::purchase_payment_status_enum
+            ELSE 'failed'::purchase_payment_status_enum
         END;
         
         payment_intent := 'pi_' || MD5(RANDOM()::TEXT);
@@ -1014,31 +1014,30 @@ BEGIN
             start_date, end_date, quantity, metadata
         ) VALUES (
             buyer_id, current_creator_id::UUID, payment_intent, payment_amount, 'USD',
-            random_status, service_id, 'appointment', 
+            random_status, service_id, 'appointment'::purchase_type_enum, 
             NOW() - (RANDOM() * 30 || ' days')::INTERVAL,
             appointment_date, appointment_date + (60 || ' minutes')::INTERVAL,
             1, jsonb_build_object('payment_method', 'card')
         ) RETURNING id INTO purchase_id;
         
         -- Insert appointment details
-        IF random_status IN ('completed', 'pending') THEN
+        IF random_status IN ('completed'::purchase_payment_status_enum, 'pending'::purchase_payment_status_enum) THEN
             INSERT INTO public.appointment_purchases (
                 purchase_id, service_id, appointment_date, 
                 duration, method, service_type, status, notes
             ) VALUES (
                 purchase_id, service_id, appointment_date,
                 60, -- 60 minutes duration
-                (ARRAY['video', 'phone', 'in-person'])[1 + (i % 3)],
-                (ARRAY['reading', 'healing', 'coaching', 'consultation'])[1 + (i % 4)],
+                ((ARRAY['video', 'phone', 'in-person'])[1 + (i % 3)])::appointment_method_enum,
+                ((ARRAY['reading', 'healing', 'coaching', 'consultation'])[1 + (i % 4)])::appointment_type_enum,
                 CASE
-                    WHEN random_status = 'completed' THEN 'confirmed'
-                    ELSE 'pending_approval'
+                    WHEN random_status = 'completed'::purchase_payment_status_enum THEN 'confirmed'::appointment_status_enum
+                    ELSE 'pending_approval'::appointment_status_enum
                 END,
                 'Client notes: Looking forward to this session!'
             );
         END IF;
     END LOOP;
-    
      -- Extra direct service appointment purchases - MAX 5 with huge spacing to avoid conflicts
     FOR i IN 1..5 LOOP
         -- Select a random buyer from our user pool
@@ -1071,7 +1070,7 @@ BEGIN
             start_date, end_date, quantity, metadata
         ) VALUES (
             buyer_id, current_creator_id::UUID, payment_intent, payment_amount, 'USD',
-            'completed', service_id, 'appointment', 
+            'completed'::purchase_payment_status_enum, service_id, 'appointment'::purchase_type_enum, 
             NOW() - (RANDOM() * 30 || ' days')::INTERVAL,
             appointment_date, appointment_date + (60 || ' minutes')::INTERVAL,
             1, jsonb_build_object('payment_method', 'card')
@@ -1084,13 +1083,12 @@ BEGIN
         ) VALUES (
             purchase_id, service_id, appointment_date,
             60, -- 60 minutes duration
-            (ARRAY['video', 'phone', 'in-person'])[1 + (i % 3)],
-            (ARRAY['reading', 'healing', 'coaching', 'consultation'])[1 + (i % 4)],
-            'confirmed',
+            ((ARRAY['video', 'phone', 'in-person'])[1 + (i % 3)])::appointment_method_enum,
+            ((ARRAY['reading', 'healing', 'coaching', 'consultation'])[1 + (i % 4)])::appointment_type_enum,
+            'confirmed'::appointment_status_enum,
             'Client notes: Looking forward to session #' || i
         );
     END LOOP;
-    
     -- 4. Subscriptions
     FOR i IN 1..5 LOOP
         -- Select a random buyer from our user pool
@@ -1098,10 +1096,10 @@ BEGIN
         
         -- Generate random status with more completed for subscriptions
         random_status := CASE
-            WHEN RANDOM() < 0.8 THEN 'completed'
-            WHEN RANDOM() < 0.9 THEN 'pending'
-            WHEN RANDOM() < 0.95 THEN 'refunded'
-            ELSE 'failed'
+            WHEN RANDOM() < 0.8 THEN 'completed'::purchase_payment_status_enum
+            WHEN RANDOM() < 0.9 THEN 'pending'::purchase_payment_status_enum
+            WHEN RANDOM() < 0.95 THEN 'refunded'::purchase_payment_status_enum
+            ELSE 'failed'::purchase_payment_status_enum
         END;
         
         payment_intent := 'pi_' || MD5(RANDOM()::TEXT);
@@ -1118,13 +1116,13 @@ BEGIN
             start_date, end_date, quantity, metadata
         ) VALUES (
             buyer_id, current_creator_id::UUID, payment_intent, 'sub_' || MD5(RANDOM()::TEXT),
-            payment_amount, 'USD', random_status, 'subscription', 
+            payment_amount, 'USD', random_status, 'subscription'::purchase_type_enum, 
             start_date, start_date, NULL, 1, 
             jsonb_build_object('payment_method', 'card')
         ) RETURNING id INTO purchase_id;
         
         -- Insert subscription details
-        IF random_status IN ('completed', 'pending') THEN
+        IF random_status IN ('completed'::purchase_payment_status_enum, 'pending'::purchase_payment_status_enum) THEN
             INSERT INTO public.subscriptions (
                 purchase_id, stripe_subscription_id, stripe_price_id, stripe_product_id,
                 plan_name, tier, billing_cycle, status,
@@ -1147,9 +1145,9 @@ BEGIN
                 1 + FLOOR(RANDOM() * 10),
                 payment_amount * (1 + FLOOR(RANDOM() * 10)),
                 CASE
-                    WHEN RANDOM() < 0.9 THEN 'completed'
-                    WHEN RANDOM() < 0.95 THEN 'failed'
-                    ELSE 'refunded'
+                    WHEN RANDOM() < 0.9 THEN 'completed'::purchase_payment_status_enum
+                    WHEN RANDOM() < 0.95 THEN 'failed'::purchase_payment_status_enum
+                    ELSE 'refunded'::purchase_payment_status_enum
                 END,
                 last_payment_date
             );
@@ -1385,8 +1383,8 @@ BEGIN
                     WHEN v_tier = 'platinum' AND v_billing_cycle = 'annual' THEN 499.99
                     ELSE 9.99
                 END,
-                'usd', 'completed',
-                'subscription', NOW() - (random() * 30 || ' days')::INTERVAL, NOW() - (random() * 30 || ' days')::INTERVAL
+                'usd', 'completed'::purchase_payment_status_enum,
+                'subscription'::purchase_type_enum, NOW() - (random() * 30 || ' days')::INTERVAL, NOW() - (random() * 30 || ' days')::INTERVAL
             ) RETURNING id INTO purchase_id;
             
             -- Insert subscription details
@@ -1425,7 +1423,7 @@ BEGIN
                         ELSE 9.99
                     END * (floor(random() * 6) + 1))
                 END,
-                'completed',
+                'completed'::purchase_payment_status_enum,
                 CASE WHEN v_status = 'trial' THEN NOW() ELSE NOW() - (random() * 15 || ' days')::INTERVAL END,
                 v_status = 'trial',
                 v_trial_ends_at
@@ -1434,4 +1432,607 @@ BEGIN
     END;
     
     RAISE NOTICE 'Created subscription tiers and sample data for creator: %', creator_id;
-END $$; 
+END $$;
+
+-- Seed data for notification system
+DO $$
+DECLARE
+    current_user_id UUID := 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'; -- brucemckayone@gmail.com
+    current_creator_id UUID := 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'; -- same user is also a creator
+    admin_user_id UUID;
+    v_random_user_ids UUID[];
+    v_notification_id UUID;
+    user_id UUID; -- Variable for FOREACH loop
+    notification_types public.notification_type[] := ARRAY['system', 'appointment', 'message', 'payment', 'reminder']::public.notification_type[];
+    delivery_channels TEXT[] := ARRAY['in_app', 'email', 'push'];
+    delivery_statuses TEXT[] := ARRAY['pending', 'sent', 'delivered', 'failed', 'cancelled'];
+BEGIN
+    -- Get actual user IDs from the database
+    -- Find admin user if exists, otherwise use the creator
+    SELECT id INTO admin_user_id 
+    FROM auth.users 
+    WHERE raw_user_meta_data->>'user_role' = 'admin' 
+    LIMIT 1;
+    
+    -- If no admin found, use creator ID
+    IF admin_user_id IS NULL THEN
+        admin_user_id := current_creator_id;
+    END IF;
+
+    -- Get random user IDs for notifications (only existing users)
+    SELECT ARRAY_AGG(id) INTO v_random_user_ids
+    FROM auth.users
+    WHERE id != current_creator_id
+    LIMIT 8;
+    
+    -- If we don't have enough random users, just use the creator ID for testing
+    IF v_random_user_ids IS NULL OR array_length(v_random_user_ids, 1) < 1 THEN
+        v_random_user_ids := ARRAY[current_creator_id];
+    END IF;
+
+    -- Create email templates
+    INSERT INTO public.email_templates (id, name, subject, html_content, text_content, variables, is_active, created_at, updated_at)
+    VALUES
+    ('e1111111-1111-1111-1111-111111111111', 'system_notification', 'System Notification: {{title}}', 
+     '<div style="font-family: Arial, sans-serif;"><h1>{{title}}</h1><p>{{content}}</p>{{#if action_url}}<a href="{{action_url}}">Click here for more information</a>{{/if}}</div>', 
+     '{{title}}\n\n{{content}}\n\n{{#if action_url}}More information: {{action_url}}{{/if}}', 
+     '["title", "content", "action_url"]'::jsonb, 
+     TRUE, NOW(), NOW()),
+     
+    ('e2222222-2222-2222-2222-222222222222', 'appointment_notification', 'Appointment Update: {{title}}', 
+     '<div style="font-family: Arial, sans-serif;"><h1>{{title}}</h1><p>{{content}}</p>{{#if action_url}}<a href="{{action_url}}">Manage your appointment</a>{{/if}}</div>', 
+     '{{title}}\n\n{{content}}\n\n{{#if action_url}}Manage your appointment: {{action_url}}{{/if}}', 
+     '["title", "content", "action_url", "appointment_date"]'::jsonb, 
+     TRUE, NOW(), NOW()),
+     
+    ('e3333333-3333-3333-3333-333333333333', 'message_notification', 'New Message: {{title}}', 
+     '<div style="font-family: Arial, sans-serif;"><h1>{{title}}</h1><p>{{content}}</p>{{#if action_url}}<a href="{{action_url}}">View conversation</a>{{/if}}</div>', 
+     '{{title}}\n\n{{content}}\n\n{{#if action_url}}View conversation: {{action_url}}{{/if}}', 
+     '["title", "content", "action_url", "sender_name"]'::jsonb, 
+     TRUE, NOW(), NOW()),
+     
+    ('e4444444-4444-4444-4444-444444444444', 'payment_notification', 'Payment Update: {{title}}', 
+     '<div style="font-family: Arial, sans-serif;"><h1>{{title}}</h1><p>{{content}}</p>{{#if action_url}}<a href="{{action_url}}">View payment details</a>{{/if}}</div>', 
+     '{{title}}\n\n{{content}}\n\n{{#if action_url}}View payment details: {{action_url}}{{/if}}', 
+     '["title", "content", "action_url", "amount", "currency"]'::jsonb, 
+     TRUE, NOW(), NOW()),
+     
+    ('e5555555-5555-5555-5555-555555555555', 'reminder_notification', 'Reminder: {{title}}', 
+     '<div style="font-family: Arial, sans-serif;"><h1>{{title}}</h1><p>{{content}}</p>{{#if action_url}}<a href="{{action_url}}">View details</a>{{/if}}</div>', 
+     '{{title}}\n\n{{content}}\n\n{{#if action_url}}View details: {{action_url}}{{/if}}', 
+     '["title", "content", "action_url", "reminder_date"]'::jsonb, 
+     TRUE, NOW(), NOW()),
+     
+    ('e6666666-6666-6666-6666-666666666666', 'default_notification', '{{title}}', 
+     '<div style="font-family: Arial, sans-serif;"><h1>{{title}}</h1><p>{{content}}</p>{{#if action_url}}<a href="{{action_url}}">More information</a>{{/if}}</div>', 
+     '{{title}}\n\n{{content}}\n\n{{#if action_url}}More information: {{action_url}}{{/if}}', 
+     '["title", "content", "action_url"]'::jsonb, 
+     TRUE, NOW(), NOW());
+
+    -- Create notification preferences for users - only use valid IDs that actually exist
+    -- First for the creator (guaranteed to exist)
+    INSERT INTO public.notification_preferences (id, user_id, type, in_app, email, push, sms, created_at, updated_at)
+    SELECT 
+        uuid_generate_v4(),
+        current_creator_id,
+        notification_type,
+        TRUE,
+        TRUE, -- Creator has all notifications enabled
+        TRUE,
+        FALSE, -- SMS disabled by default
+        NOW(),
+        NOW()
+    FROM
+        unnest(notification_types) as notification_type;
+        
+    -- Then for each existing user in v_random_user_ids array
+    IF v_random_user_ids IS NOT NULL AND array_length(v_random_user_ids, 1) > 0 THEN
+        FOREACH user_id IN ARRAY v_random_user_ids
+        LOOP
+            INSERT INTO public.notification_preferences (id, user_id, type, in_app, email, push, sms, created_at, updated_at)
+            SELECT 
+                uuid_generate_v4(),
+                user_id,
+                notification_type,
+                TRUE,
+                CASE WHEN random() > 0.2 THEN TRUE ELSE FALSE END, -- 80% have email on
+                CASE WHEN random() > 0.4 THEN TRUE ELSE FALSE END, -- 60% have push on
+                CASE WHEN random() > 0.7 THEN TRUE ELSE FALSE END, -- 30% have sms on
+                NOW(),
+                NOW()
+            FROM
+                unnest(notification_types) as notification_type;
+        END LOOP;
+    END IF;
+
+    -- Create system notifications from admin to users
+    FOR i IN 1..20 LOOP
+        -- Only proceed if we have random users
+        IF v_random_user_ids IS NULL OR array_length(v_random_user_ids, 1) < 1 THEN
+            EXIT; -- Skip if no random users
+        END IF;
+        
+        -- Select a random recipient
+        INSERT INTO public.notifications (
+            id,
+            user_id,
+            sender_id,
+            title,
+            content,
+            type,
+            action_url,
+            is_read,
+            reference_id,
+            reference_type,
+            metadata,
+            created_at,
+            updated_at
+        ) VALUES (
+            uuid_generate_v4(),
+            v_random_user_ids[1 + (i % array_length(v_random_user_ids, 1))],
+            admin_user_id,
+            CASE 
+                WHEN i % 5 = 0 THEN 'Welcome to our platform'
+                WHEN i % 5 = 1 THEN 'Important system update'
+                WHEN i % 5 = 2 THEN 'Your account has been verified'
+                WHEN i % 5 = 3 THEN 'Security alert'
+                ELSE 'New feature announcement'
+            END,
+            CASE 
+                WHEN i % 5 = 0 THEN 'Thank you for joining our platform. We''re excited to have you here!'
+                WHEN i % 5 = 1 THEN 'We have updated our system with new features and improvements.'
+                WHEN i % 5 = 2 THEN 'Your account has been successfully verified. You now have full access to all features.'
+                WHEN i % 5 = 3 THEN 'We detected a new login to your account. If this wasn''t you, please contact support.'
+                ELSE 'We''ve added exciting new features to enhance your experience!'
+            END,
+            'system',
+            CASE WHEN i % 3 = 0 THEN '/settings' WHEN i % 3 = 1 THEN '/account' ELSE NULL END,
+            CASE WHEN i % 3 = 0 THEN TRUE ELSE FALSE END, -- 1/3 are read
+            NULL,
+            NULL,
+            jsonb_build_object(
+                'importance', CASE WHEN i % 4 = 0 THEN 'high' WHEN i % 4 = 1 THEN 'medium' ELSE 'low' END,
+                'notification_type', 'system_update'
+            ),
+            NOW() - ((21 - i) || ' days')::INTERVAL, -- Spread over the last 3 weeks
+            NOW() - ((21 - i) || ' days')::INTERVAL
+        ) RETURNING id INTO v_notification_id;
+
+        -- Create notification deliveries
+        INSERT INTO public.notification_deliveries (
+            id,
+            notification_id,
+            channel,
+            status,
+            external_id,
+            error_message,
+            attempt_count,
+            next_attempt_at,
+            created_at,
+            updated_at
+        ) 
+        VALUES
+        (
+            uuid_generate_v4(),
+            v_notification_id,
+            'in_app',
+            'delivered',
+            NULL,
+            NULL,
+            1,
+            NULL,
+            NOW() - ((21 - i) || ' days')::INTERVAL,
+            NOW() - ((21 - i) || ' days')::INTERVAL
+        ),
+        (
+            uuid_generate_v4(),
+            v_notification_id,
+            'email',
+            CASE 
+                WHEN i % 10 = 0 THEN 'failed'
+                WHEN i % 10 = 1 THEN 'pending'
+                ELSE 'sent'
+            END,
+            CASE WHEN i % 10 NOT IN (0, 1) THEN 'msg_' || md5(random()::text) ELSE NULL END,
+            CASE WHEN i % 10 = 0 THEN 'Failed to send email: Invalid email address' ELSE NULL END,
+            CASE WHEN i % 10 = 0 THEN 3 WHEN i % 10 = 1 THEN 0 ELSE 1 END,
+            CASE WHEN i % 10 = 1 THEN NOW() + '30 minutes'::INTERVAL ELSE NULL END,
+            NOW() - ((21 - i) || ' days')::INTERVAL,
+            NOW() - ((21 - i) || ' days')::INTERVAL
+        );
+        
+        -- Add push notification delivery for some notifications
+        IF i % 3 = 0 THEN
+            INSERT INTO public.notification_deliveries (
+                id,
+                notification_id,
+                channel,
+                status,
+                external_id,
+                error_message,
+                attempt_count,
+                next_attempt_at,
+                created_at,
+                updated_at
+            ) VALUES (
+                uuid_generate_v4(),
+                v_notification_id,
+                'push',
+                CASE 
+                    WHEN i % 6 = 0 THEN 'failed'
+                    ELSE 'sent'
+                END,
+                CASE WHEN i % 6 != 0 THEN 'fcm_' || md5(random()::text) ELSE NULL END,
+                CASE WHEN i % 6 = 0 THEN 'Failed to send push: Device token not found' ELSE NULL END,
+                CASE WHEN i % 6 = 0 THEN 2 ELSE 1 END,
+                NULL,
+                NOW() - ((21 - i) || ' days')::INTERVAL,
+                NOW() - ((21 - i) || ' days')::INTERVAL
+            );
+        END IF;
+    END LOOP;
+
+    -- Only continue with the rest of the notifications if we have random users
+    IF v_random_user_ids IS NULL OR array_length(v_random_user_ids, 1) < 1 THEN
+        RAISE NOTICE 'Created only basic notification system seed data (skipped user notifications due to no random users)';
+        RETURN;
+    END IF;
+
+    -- Create appointment notifications
+    FOR i IN 1..8 LOOP
+        INSERT INTO public.notifications (
+            id,
+            user_id,
+            sender_id,
+            title,
+            content,
+            type,
+            action_url,
+            is_read,
+            reference_id,
+            reference_type,
+            metadata,
+            created_at,
+            updated_at
+        ) VALUES (
+            uuid_generate_v4(),
+            v_random_user_ids[1 + (i % array_length(v_random_user_ids, 1))],
+            current_creator_id,
+            CASE 
+                WHEN i % 4 = 0 THEN 'Appointment Confirmed'
+                WHEN i % 4 = 1 THEN 'Appointment Reminder'
+                WHEN i % 4 = 2 THEN 'Appointment Cancelled'
+                ELSE 'Appointment Rescheduled'
+            END,
+            CASE 
+                WHEN i % 4 = 0 THEN 'Your appointment has been confirmed for ' || to_char(NOW() + (i || ' days')::INTERVAL, 'Mon DD, YYYY HH:MI AM')
+                WHEN i % 4 = 1 THEN 'Reminder: Your appointment is scheduled for tomorrow at ' || to_char(NOW() + '1 day'::INTERVAL, 'HH:MI AM')
+                WHEN i % 4 = 2 THEN 'Your appointment scheduled for ' || to_char(NOW() + (i || ' days')::INTERVAL, 'Mon DD') || ' has been cancelled'
+                ELSE 'Your appointment has been rescheduled to ' || to_char(NOW() + ((i+3) || ' days')::INTERVAL, 'Mon DD, YYYY HH:MI AM')
+            END,
+            'appointment',
+            '/appointments/' || uuid_generate_v4(), -- Fake appointment ID
+            i % 2 = 0, -- Half are read
+            uuid_generate_v4(), -- Fake reference ID
+            'appointment',
+            jsonb_build_object(
+                'appointment_date', to_char(NOW() + (i || ' days')::INTERVAL, 'YYYY-MM-DD"T"HH:MI:SS'),
+                'status', CASE 
+                    WHEN i % 4 = 0 THEN 'confirmed'
+                    WHEN i % 4 = 1 THEN 'scheduled'
+                    WHEN i % 4 = 2 THEN 'cancelled'
+                    ELSE 'rescheduled'
+                END,
+                'notification_type', CASE 
+                    WHEN i % 4 = 0 THEN 'appointment_confirmed'
+                    WHEN i % 4 = 1 THEN 'appointment_reminder'
+                    WHEN i % 4 = 2 THEN 'appointment_cancelled'
+                    ELSE 'appointment_rescheduled'
+                END
+            ),
+            NOW() - ((i*2) || ' days')::INTERVAL,
+            NOW() - ((i*2) || ' days')::INTERVAL
+        ) RETURNING id INTO v_notification_id;
+
+        -- Create notification deliveries for appointments
+        INSERT INTO public.notification_deliveries (
+            id,
+            notification_id,
+            channel,
+            status,
+            created_at,
+            updated_at
+        ) 
+        VALUES
+        (
+            uuid_generate_v4(),
+            v_notification_id,
+            'in_app',
+            'delivered',
+            NOW() - ((i*2) || ' days')::INTERVAL,
+            NOW() - ((i*2) || ' days')::INTERVAL
+        ),
+        (
+            uuid_generate_v4(),
+            v_notification_id,
+            'email',
+            'sent',
+            NOW() - ((i*2) || ' days')::INTERVAL,
+            NOW() - ((i*2) || ' days')::INTERVAL
+        );
+    END LOOP;
+
+    -- Create message notifications
+    FOR i IN 1..10 LOOP
+        INSERT INTO public.notifications (
+            id,
+            user_id,
+            sender_id,
+            title,
+            content,
+            type,
+            action_url,
+            is_read,
+            reference_id,
+            reference_type,
+            metadata,
+            created_at,
+            updated_at
+        ) VALUES (
+            uuid_generate_v4(),
+            v_random_user_ids[1 + (i % array_length(v_random_user_ids, 1))],
+            CASE WHEN i % 2 = 0 THEN current_creator_id ELSE admin_user_id END,
+            CASE WHEN i % 3 = 0 THEN '3 new messages' ELSE 'New message' END,
+            CASE 
+                WHEN i % 3 = 0 THEN 'You have 3 new messages in your inbox'
+                WHEN i % 3 = 1 THEN 'Jane: Hi there! How are you doing today?'
+                ELSE 'John: Do you have time for a quick call tomorrow?'
+            END,
+            'message',
+            '/chat/' || uuid_generate_v4(), -- Fake chat ID
+            i % 3 = 0, -- 1/3 are read
+            uuid_generate_v4(), -- Fake reference ID (chat room)
+            'chat_room',
+            jsonb_build_object(
+                'chat_id', uuid_generate_v4(),
+                'message_count', CASE WHEN i % 3 = 0 THEN 3 ELSE 1 END,
+                'sender_name', CASE WHEN i % 3 = 1 THEN 'Jane' ELSE 'John' END,
+                'notification_type', 'new_message'
+            ),
+            NOW() - ((i) || ' hours')::INTERVAL, -- More recent
+            NOW() - ((i) || ' hours')::INTERVAL
+        ) RETURNING id INTO v_notification_id;
+
+        -- Create notification deliveries for messages
+        INSERT INTO public.notification_deliveries (
+            id,
+            notification_id,
+            channel,
+            status,
+            created_at,
+            updated_at
+        ) 
+        VALUES
+        (
+            uuid_generate_v4(),
+            v_notification_id,
+            'in_app',
+            'delivered',
+            NOW() - ((i) || ' hours')::INTERVAL,
+            NOW() - ((i) || ' hours')::INTERVAL
+        );
+        
+        -- Add push for some message notifications
+        IF i % 2 = 0 THEN
+            INSERT INTO public.notification_deliveries (
+                id,
+                notification_id,
+                channel,
+                status,
+                external_id,
+                created_at,
+                updated_at
+            ) VALUES (
+                uuid_generate_v4(),
+                v_notification_id,
+                'push',
+                'sent',
+                'fcm_' || md5(random()::text),
+                NOW() - ((i) || ' hours')::INTERVAL,
+                NOW() - ((i) || ' hours')::INTERVAL
+            );
+        END IF;
+    END LOOP;
+
+    -- Create payment notifications
+    FOR i IN 1..8 LOOP
+        INSERT INTO public.notifications (
+            id,
+            user_id,
+            sender_id,
+            title,
+            content,
+            type,
+            action_url,
+            is_read,
+            reference_id,
+            reference_type,
+            metadata,
+            created_at,
+            updated_at
+        ) VALUES (
+            uuid_generate_v4(),
+            v_random_user_ids[1 + (i % array_length(v_random_user_ids, 1))],
+            current_creator_id,
+            CASE 
+                WHEN i % 4 = 0 THEN 'Payment Successful'
+                WHEN i % 4 = 1 THEN 'Payment Failed'
+                WHEN i % 4 = 2 THEN 'Subscription Renewed'
+                ELSE 'Refund Processed'
+            END,
+            CASE 
+                WHEN i % 4 = 0 THEN 'Your payment of $' || (19.99 + (i * 5.00)) || ' was successful'
+                WHEN i % 4 = 1 THEN 'Your payment of $' || (19.99 + (i * 5.00)) || ' has failed. Please update your payment method'
+                WHEN i % 4 = 2 THEN 'Your subscription has been renewed. Next payment: $' || (19.99 + (i * 5.00))
+                ELSE 'Your refund of $' || (19.99 + (i * 5.00)) || ' has been processed'
+            END,
+            'payment',
+            '/payments/' || uuid_generate_v4(), -- Fake payment ID
+            i % 2 = 0, -- Half are read
+            uuid_generate_v4(), -- Fake reference ID
+            'payment',
+            jsonb_build_object(
+                'amount', 19.99 + (i * 5.00),
+                'currency', 'USD',
+                'status', CASE 
+                    WHEN i % 4 = 0 THEN 'succeeded'
+                    WHEN i % 4 = 1 THEN 'failed'
+                    WHEN i % 4 = 2 THEN 'renewed'
+                    ELSE 'refunded'
+                END,
+                'payment_method', 'card',
+                'notification_type', CASE 
+                    WHEN i % 4 = 0 THEN 'payment_success'
+                    WHEN i % 4 = 1 THEN 'payment_failed'
+                    WHEN i % 4 = 2 THEN 'subscription_renewed'
+                    ELSE 'payment_refunded'
+                END
+            ),
+            NOW() - ((i*3) || ' days')::INTERVAL,
+            NOW() - ((i*3) || ' days')::INTERVAL
+        ) RETURNING id INTO v_notification_id;
+
+        -- Create notification deliveries for payments
+        INSERT INTO public.notification_deliveries (
+            id,
+            notification_id,
+            channel,
+            status,
+            created_at,
+            updated_at
+        ) 
+        VALUES
+        (
+            uuid_generate_v4(),
+            v_notification_id,
+            'in_app',
+            'delivered',
+            NOW() - ((i*3) || ' days')::INTERVAL,
+            NOW() - ((i*3) || ' days')::INTERVAL
+        ),
+        (
+            uuid_generate_v4(),
+            v_notification_id,
+            'email',
+            'sent',
+            NOW() - ((i*3) || ' days')::INTERVAL,
+            NOW() - ((i*3) || ' days')::INTERVAL
+        );
+    END LOOP;
+
+    -- Create reminder notifications
+    FOR i IN 1..6 LOOP
+        INSERT INTO public.notifications (
+            id,
+            user_id,
+            sender_id,
+            title,
+            content,
+            type,
+            action_url,
+            is_read,
+            reference_id,
+            reference_type,
+            metadata,
+            created_at,
+            updated_at
+        ) VALUES (
+            uuid_generate_v4(),
+            v_random_user_ids[1 + (i % array_length(v_random_user_ids, 1))],
+            current_creator_id,
+            CASE 
+                WHEN i % 3 = 0 THEN 'Event Reminder'
+                WHEN i % 3 = 1 THEN 'Complete Your Profile'
+                ELSE 'Upcoming Session'
+            END,
+            CASE 
+                WHEN i % 3 = 0 THEN 'Reminder: You have an event scheduled for ' || to_char(NOW() + (i || ' days')::INTERVAL, 'Mon DD, YYYY')
+                WHEN i % 3 = 1 THEN 'Your profile is 70% complete. Add more information to enhance your experience'
+                ELSE 'Don''t forget your upcoming session on ' || to_char(NOW() + (i || ' days')::INTERVAL, 'Mon DD, YYYY')
+            END,
+            'reminder',
+            CASE 
+                WHEN i % 3 = 0 THEN '/events/' || uuid_generate_v4()
+                WHEN i % 3 = 1 THEN '/profile/edit'
+                ELSE '/sessions/' || uuid_generate_v4()
+            END,
+            i % 3 = 0, -- 1/3 are read
+            uuid_generate_v4(), -- Fake reference ID
+            CASE 
+                WHEN i % 3 = 0 THEN 'event'
+                WHEN i % 3 = 1 THEN 'profile'
+                ELSE 'session'
+            END,
+            jsonb_build_object(
+                'reminder_date', to_char(NOW() + (i || ' days')::INTERVAL, 'YYYY-MM-DD"T"HH:MI:SS'),
+                'notification_type', CASE 
+                    WHEN i % 3 = 0 THEN 'event_reminder'
+                    WHEN i % 3 = 1 THEN 'profile_completion'
+                    ELSE 'session_reminder'
+                END
+            ),
+            NOW() - ((i) || ' days')::INTERVAL,
+            NOW() - ((i) || ' days')::INTERVAL
+        ) RETURNING id INTO v_notification_id;
+
+        -- Create notification deliveries for reminders
+        INSERT INTO public.notification_deliveries (
+            id,
+            notification_id,
+            channel,
+            status,
+            created_at,
+            updated_at
+        ) 
+        VALUES
+        (
+            uuid_generate_v4(),
+            v_notification_id,
+            'in_app',
+            'delivered',
+            NOW() - ((i) || ' days')::INTERVAL,
+            NOW() - ((i) || ' days')::INTERVAL
+        ),
+        (
+            uuid_generate_v4(),
+            v_notification_id,
+            'email',
+            'sent',
+            NOW() - ((i) || ' days')::INTERVAL,
+            NOW() - ((i) || ' days')::INTERVAL
+        );
+        
+        -- Add push for some reminder notifications
+        IF i % 2 = 0 THEN
+            INSERT INTO public.notification_deliveries (
+                id,
+                notification_id,
+                channel,
+                status,
+                external_id,
+                created_at,
+                updated_at
+            ) VALUES (
+                uuid_generate_v4(),
+                v_notification_id,
+                'push',
+                'sent',
+                'fcm_' || md5(random()::text),
+                NOW() - ((i) || ' days')::INTERVAL,
+                NOW() - ((i) || ' days')::INTERVAL
+            );
+        END IF;
+    END LOOP;
+
+    RAISE NOTICE 'Created notification system seed data';
+END $$;

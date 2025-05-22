@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastTimestamp": "20250503151706",
+  "lastTimestamp": "20250522151954",
   "templates": {
     "supabase/migrations-templates/transcripts.sql": {
       "lastBuildHash": "6868cda80b2d5883d8b103ef51e29b37",
@@ -36,6 +36,81 @@
       "lastBuildHash": "e1f61d2bd501c9c536a2887666354e37",
       "lastBuildDate": "2025-05-03T15:17:00.191Z",
       "lastMigrationFile": "20250503151706_srtd-chat.sql"
+    },
+    "supabase/migrations-templates/update_notification_functions.sql": {
+      "lastBuildHash": "1c7a220f40fc1a51169233b9b333fcf0",
+      "lastBuildDate": "2025-05-14T08:58:08.613Z",
+      "lastMigrationFile": "20250514085808_srtd-update_notification_functions.sql"
+    },
+    "supabase/migrations-templates/fix_notifications_mark_as_read.sql": {
+      "lastBuildHash": "9dfeb1ec217207675260f9b326f8a4b2",
+      "lastBuildDate": "2025-05-14T08:58:08.615Z",
+      "lastMigrationFile": "20250514085809_srtd-fix_notifications_mark_as_read.sql"
+    },
+    "supabase/migrations-templates/creator-sent-notificatinos.sql": {
+      "lastBuildHash": "6c6778285360d3f1fe44107e01a9593a",
+      "lastBuildDate": "2025-05-14T08:58:08.622Z",
+      "lastMigrationFile": "20250514085810_srtd-creator-sent-notificatinos.sql"
+    },
+    "supabase/migrations-templates/fix_approve_appointment_function.sql": {
+      "lastBuildHash": "0484803045d6ce08db4b0aa41d9a52ca",
+      "lastBuildDate": "2025-05-17T17:03:51.850Z",
+      "lastMigrationFile": "20250517170351_srtd-fix_approve_appointment_function.sql"
+    },
+    "supabase/migrations-templates/update_appointment_payment_flow.sql": {
+      "lastBuildHash": "fa230b016ccb687239d1928b5b8c5369",
+      "lastBuildDate": "2025-05-22T15:19:44.375Z",
+      "lastMigrationFile": "20250522151944_srtd-update_appointment_payment_flow.sql"
+    },
+    "supabase/migrations-templates/trigger-auto-appointment-confirm.sql": {
+      "lastBuildHash": "8030e6a340ce174cd77f347a8cfd7ac5",
+      "lastBuildDate": "2025-05-22T15:19:44.379Z",
+      "lastMigrationFile": "20250522151945_srtd-trigger-auto-appointment-confirm.sql"
+    },
+    "supabase/migrations-templates/respond_to_appointment_request.sql": {
+      "lastBuildHash": "b30dbba90ceb7afd6911a769a1efee56",
+      "lastBuildDate": "2025-05-22T15:19:44.383Z",
+      "lastMigrationFile": "20250522151946_srtd-respond_to_appointment_request.sql"
+    },
+    "supabase/migrations-templates/fixing-get-user-appointments.sql": {
+      "lastBuildHash": "e8e5bc6ac1f2d7c9eee065082b7a8368",
+      "lastBuildDate": "2025-05-22T15:19:44.391Z",
+      "lastMigrationFile": "20250522151947_srtd-fixing-get-user-appointments.sql"
+    },
+    "supabase/migrations-templates/fixed_appointment_functions.sql": {
+      "lastBuildHash": "fcba2b2fb586aa1dbda8f119dca9a902",
+      "lastBuildDate": "2025-05-22T15:19:44.400Z",
+      "lastMigrationFile": "20250522151948_srtd-fixed_appointment_functions.sql"
+    },
+    "supabase/migrations-templates/enums_on_purchase_table.sql": {
+      "lastBuildHash": "a558fc22dfd5c7bda5ca21ae3909357f",
+      "lastBuildDate": "2025-05-22T15:19:44.405Z",
+      "lastMigrationFile": "20250522151949_srtd-enums_on_purchase_table.sql"
+    },
+    "supabase/migrations-templates/drop_all_appointment_functions.sql": {
+      "lastBuildHash": "b99ca267d85b885704b3a1b702792c0b",
+      "lastBuildDate": "2025-05-22T15:19:44.412Z",
+      "lastMigrationFile": "20250522151950_srtd-drop_all_appointment_functions.sql"
+    },
+    "supabase/migrations-templates/consolidated_appointment_functions.sql": {
+      "lastBuildHash": "956e2034dcebb8ce6b63aa2913e163a3",
+      "lastBuildDate": "2025-05-22T15:19:44.415Z",
+      "lastMigrationFile": "20250522151951_srtd-consolidated_appointment_functions.sql"
+    },
+    "supabase/migrations-templates/appointment_system_with_proper_enums.sql": {
+      "lastBuildHash": "2e58e8ce46c81a7423f884fbe4957a47",
+      "lastBuildDate": "2025-05-22T15:19:44.421Z",
+      "lastMigrationFile": "20250522151952_srtd-appointment_system_with_proper_enums.sql"
+    },
+    "supabase/migrations-templates/add_payment_link_to_appointments.sql": {
+      "lastBuildHash": "36c3c29f39d91e131a0c52e2ee6dfda2",
+      "lastBuildDate": "2025-05-22T15:19:44.423Z",
+      "lastMigrationFile": "20250522151953_srtd-add_payment_link_to_appointments.sql"
+    },
+    "supabase/migrations-templates/add_metadata_column.sql": {
+      "lastBuildHash": "fb1b8d3a5bd81cb756b386c4e11321be",
+      "lastBuildDate": "2025-05-22T15:19:44.425Z",
+      "lastMigrationFile": "20250522151954_srtd-add_metadata_column.sql"
     }
   }
 }

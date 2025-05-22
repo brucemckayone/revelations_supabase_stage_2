@@ -42,6 +42,7 @@ export type Database = {
           id: string
           meeting_id: string | null
           meeting_url: string | null
+          metadata: Json | null
           method: string
           notes: string | null
           purchase_id: string
@@ -57,6 +58,7 @@ export type Database = {
           id?: string
           meeting_id?: string | null
           meeting_url?: string | null
+          metadata?: Json | null
           method: string
           notes?: string | null
           purchase_id: string
@@ -72,6 +74,7 @@ export type Database = {
           id?: string
           meeting_id?: string | null
           meeting_url?: string | null
+          metadata?: Json | null
           method?: string
           notes?: string | null
           purchase_id?: string
@@ -108,13 +111,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "services"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "appointment_purchases_service_id_fkey"
-            columns: ["service_id"]
-            isOneToOne: false
-            referencedRelation: "services_with_availability"
-            referencedColumns: ["service_id"]
           },
         ]
       }
@@ -235,6 +231,13 @@ export type Database = {
             foreignKeyName: "articles_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "events_view"
+            referencedColumns: ["post_id"]
+          },
+          {
+            foreignKeyName: "articles_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "meditation_details"
             referencedColumns: ["id"]
           },
@@ -278,13 +281,6 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "service_details_view"
-            referencedColumns: ["post_id"]
-          },
-          {
-            foreignKeyName: "articles_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "services_with_availability"
             referencedColumns: ["post_id"]
           },
           {
@@ -527,6 +523,13 @@ export type Database = {
             foreignKeyName: "bookings_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "events_view"
+            referencedColumns: ["post_id"]
+          },
+          {
+            foreignKeyName: "bookings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "meditation_details"
             referencedColumns: ["id"]
           },
@@ -570,13 +573,6 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "service_details_view"
-            referencedColumns: ["post_id"]
-          },
-          {
-            foreignKeyName: "bookings_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "services_with_availability"
             referencedColumns: ["post_id"]
           },
           {
@@ -859,6 +855,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "chat_rooms_associated_event_id_fkey"
+            columns: ["associated_event_id"]
+            isOneToOne: false
+            referencedRelation: "events_view"
+            referencedColumns: ["event_id"]
+          },
+          {
             foreignKeyName: "chat_rooms_associated_post_id_fkey"
             columns: ["associated_post_id"]
             isOneToOne: false
@@ -898,6 +901,13 @@ export type Database = {
             columns: ["associated_post_id"]
             isOneToOne: false
             referencedRelation: "event_details_view"
+            referencedColumns: ["post_id"]
+          },
+          {
+            foreignKeyName: "chat_rooms_associated_post_id_fkey"
+            columns: ["associated_post_id"]
+            isOneToOne: false
+            referencedRelation: "events_view"
             referencedColumns: ["post_id"]
           },
           {
@@ -947,13 +957,6 @@ export type Database = {
             columns: ["associated_post_id"]
             isOneToOne: false
             referencedRelation: "service_details_view"
-            referencedColumns: ["post_id"]
-          },
-          {
-            foreignKeyName: "chat_rooms_associated_post_id_fkey"
-            columns: ["associated_post_id"]
-            isOneToOne: false
-            referencedRelation: "services_with_availability"
             referencedColumns: ["post_id"]
           },
           {
@@ -1182,6 +1185,13 @@ export type Database = {
             foreignKeyName: "comments_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "events_view"
+            referencedColumns: ["post_id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "meditation_details"
             referencedColumns: ["id"]
           },
@@ -1225,13 +1235,6 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "service_details_view"
-            referencedColumns: ["post_id"]
-          },
-          {
-            foreignKeyName: "comments_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "services_with_availability"
             referencedColumns: ["post_id"]
           },
           {
@@ -1464,6 +1467,44 @@ export type Database = {
             foreignKeyName: "creator_branding_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      creator_emails: {
+        Row: {
+          configuration: Json
+          created_at: string | null
+          id: string
+          name: string
+          subject: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          configuration: Json
+          created_at?: string | null
+          id?: string
+          name: string
+          subject: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          configuration?: Json
+          created_at?: string | null
+          id?: string
+          name?: string
+          subject?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_emails_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           },
@@ -1730,6 +1771,42 @@ export type Database = {
           },
         ]
       }
+      email_templates: {
+        Row: {
+          created_at: string
+          html_content: string
+          id: string
+          is_active: boolean
+          name: string
+          subject: string
+          text_content: string
+          updated_at: string
+          variables: Json
+        }
+        Insert: {
+          created_at?: string
+          html_content: string
+          id?: string
+          is_active?: boolean
+          name: string
+          subject: string
+          text_content: string
+          updated_at?: string
+          variables?: Json
+        }
+        Update: {
+          created_at?: string
+          html_content?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          subject?: string
+          text_content?: string
+          updated_at?: string
+          variables?: Json
+        }
+        Relationships: []
+      }
       embeddings: {
         Row: {
           embedding: string | null
@@ -1793,6 +1870,13 @@ export type Database = {
             foreignKeyName: "embeddings_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: true
+            referencedRelation: "events_view"
+            referencedColumns: ["post_id"]
+          },
+          {
+            foreignKeyName: "embeddings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
             referencedRelation: "meditation_details"
             referencedColumns: ["id"]
           },
@@ -1836,13 +1920,6 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: true
             referencedRelation: "service_details_view"
-            referencedColumns: ["post_id"]
-          },
-          {
-            foreignKeyName: "embeddings_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: true
-            referencedRelation: "services_with_availability"
             referencedColumns: ["post_id"]
           },
           {
@@ -2009,6 +2086,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "event_bookings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_view"
+            referencedColumns: ["event_id"]
+          },
+          {
             foreignKeyName: "event_bookings_purchase_id_fkey"
             columns: ["purchase_id"]
             isOneToOne: false
@@ -2071,6 +2155,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "events"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_dates_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_view"
+            referencedColumns: ["event_id"]
           },
         ]
       }
@@ -2146,6 +2237,13 @@ export type Database = {
             foreignKeyName: "events_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "events_view"
+            referencedColumns: ["post_id"]
+          },
+          {
+            foreignKeyName: "events_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "meditation_details"
             referencedColumns: ["id"]
           },
@@ -2189,13 +2287,6 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "service_details_view"
-            referencedColumns: ["post_id"]
-          },
-          {
-            foreignKeyName: "events_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "services_with_availability"
             referencedColumns: ["post_id"]
           },
           {
@@ -2328,6 +2419,13 @@ export type Database = {
             foreignKeyName: "journal_content_links_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "events_view"
+            referencedColumns: ["post_id"]
+          },
+          {
+            foreignKeyName: "journal_content_links_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "meditation_details"
             referencedColumns: ["id"]
           },
@@ -2371,13 +2469,6 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "service_details_view"
-            referencedColumns: ["post_id"]
-          },
-          {
-            foreignKeyName: "journal_content_links_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "services_with_availability"
             referencedColumns: ["post_id"]
           },
           {
@@ -2632,6 +2723,13 @@ export type Database = {
             foreignKeyName: "live_rooms_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "events_view"
+            referencedColumns: ["post_id"]
+          },
+          {
+            foreignKeyName: "live_rooms_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "meditation_details"
             referencedColumns: ["id"]
           },
@@ -2675,13 +2773,6 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "service_details_view"
-            referencedColumns: ["post_id"]
-          },
-          {
-            foreignKeyName: "live_rooms_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "services_with_availability"
             referencedColumns: ["post_id"]
           },
           {
@@ -3179,6 +3270,351 @@ export type Database = {
           },
         ]
       }
+      notification_deliveries: {
+        Row: {
+          attempt_count: number
+          channel: string
+          created_at: string
+          error_message: string | null
+          external_id: string | null
+          id: string
+          next_attempt_at: string | null
+          notification_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attempt_count?: number
+          channel: string
+          created_at?: string
+          error_message?: string | null
+          external_id?: string | null
+          id?: string
+          next_attempt_at?: string | null
+          notification_id: string
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          attempt_count?: number
+          channel?: string
+          created_at?: string
+          error_message?: string | null
+          external_id?: string | null
+          id?: string
+          next_attempt_at?: string | null
+          notification_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_deliveries_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "creator_sent_notifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_deliveries_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_preferences: {
+        Row: {
+          created_at: string
+          email: boolean
+          id: string
+          in_app: boolean
+          push: boolean
+          sms: boolean
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: boolean
+          id?: string
+          in_app?: boolean
+          push?: boolean
+          sms?: boolean
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: boolean
+          id?: string
+          in_app?: boolean
+          push?: boolean
+          sms?: boolean
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_read_receipts: {
+        Row: {
+          id: string
+          notification_id: string
+          read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          notification_id: string
+          read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          notification_id?: string
+          read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_read_receipts_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "creator_sent_notifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_read_receipts_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_read_receipts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_recipients: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          notification_id: string
+          read_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          notification_id: string
+          read_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          notification_id?: string
+          read_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_recipients_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "creator_sent_notifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_recipients_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notification_recipients_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_statistics: {
+        Row: {
+          channel_counts: Json
+          created_at: string
+          date: string
+          id: string
+          read_count: number
+          total_count: number
+          type_counts: Json
+          updated_at: string
+        }
+        Insert: {
+          channel_counts: Json
+          created_at?: string
+          date: string
+          id?: string
+          read_count: number
+          total_count: number
+          type_counts: Json
+          updated_at?: string
+        }
+        Update: {
+          channel_counts?: Json
+          created_at?: string
+          date?: string
+          id?: string
+          read_count?: number
+          total_count?: number
+          type_counts?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      notification_templates: {
+        Row: {
+          action_url: string | null
+          content: string
+          created_at: string | null
+          creator_id: string
+          id: string
+          metadata: Json | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          action_url?: string | null
+          content: string
+          created_at?: string | null
+          creator_id: string
+          id?: string
+          metadata?: Json | null
+          title: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          action_url?: string | null
+          content?: string
+          created_at?: string | null
+          creator_id?: string
+          id?: string
+          metadata?: Json | null
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_templates_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          action_url: string | null
+          audience_criteria: Json | null
+          audience_type:
+            | Database["public"]["Enums"]["notification_audience_type"]
+            | null
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean
+          metadata: Json | null
+          reference_id: string | null
+          reference_type: string | null
+          sender_id: string | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          audience_criteria?: Json | null
+          audience_type?:
+            | Database["public"]["Enums"]["notification_audience_type"]
+            | null
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          metadata?: Json | null
+          reference_id?: string | null
+          reference_type?: string | null
+          sender_id?: string | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          audience_criteria?: Json | null
+          audience_type?:
+            | Database["public"]["Enums"]["notification_audience_type"]
+            | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          metadata?: Json | null
+          reference_id?: string | null
+          reference_type?: string | null
+          sender_id?: string | null
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       on_demand_media: {
         Row: {
           created_at: string | null
@@ -3257,6 +3693,13 @@ export type Database = {
             foreignKeyName: "on_demand_media_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: true
+            referencedRelation: "events_view"
+            referencedColumns: ["post_id"]
+          },
+          {
+            foreignKeyName: "on_demand_media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
             referencedRelation: "meditation_details"
             referencedColumns: ["id"]
           },
@@ -3300,13 +3743,6 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: true
             referencedRelation: "service_details_view"
-            referencedColumns: ["post_id"]
-          },
-          {
-            foreignKeyName: "on_demand_media_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: true
-            referencedRelation: "services_with_availability"
             referencedColumns: ["post_id"]
           },
           {
@@ -3430,6 +3866,13 @@ export type Database = {
             foreignKeyName: "post_emotional_focuses_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "events_view"
+            referencedColumns: ["post_id"]
+          },
+          {
+            foreignKeyName: "post_emotional_focuses_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "meditation_details"
             referencedColumns: ["id"]
           },
@@ -3473,13 +3916,6 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "service_details_view"
-            referencedColumns: ["post_id"]
-          },
-          {
-            foreignKeyName: "post_emotional_focuses_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "services_with_availability"
             referencedColumns: ["post_id"]
           },
           {
@@ -3561,6 +3997,13 @@ export type Database = {
             foreignKeyName: "post_locations_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "events_view"
+            referencedColumns: ["post_id"]
+          },
+          {
+            foreignKeyName: "post_locations_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "meditation_details"
             referencedColumns: ["id"]
           },
@@ -3604,13 +4047,6 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "service_details_view"
-            referencedColumns: ["post_id"]
-          },
-          {
-            foreignKeyName: "post_locations_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "services_with_availability"
             referencedColumns: ["post_id"]
           },
           {
@@ -3682,6 +4118,13 @@ export type Database = {
             foreignKeyName: "post_tags_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "events_view"
+            referencedColumns: ["post_id"]
+          },
+          {
+            foreignKeyName: "post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "meditation_details"
             referencedColumns: ["id"]
           },
@@ -3725,13 +4168,6 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "service_details_view"
-            referencedColumns: ["post_id"]
-          },
-          {
-            foreignKeyName: "post_tags_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "services_with_availability"
             referencedColumns: ["post_id"]
           },
           {
@@ -4138,6 +4574,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "purchases_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_view"
+            referencedColumns: ["event_id"]
+          },
+          {
             foreignKeyName: "purchases_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
@@ -4184,6 +4627,13 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "event_details_view"
+            referencedColumns: ["post_id"]
+          },
+          {
+            foreignKeyName: "purchases_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "events_view"
             referencedColumns: ["post_id"]
           },
           {
@@ -4239,13 +4689,6 @@ export type Database = {
             foreignKeyName: "purchases_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
-            referencedRelation: "services_with_availability"
-            referencedColumns: ["post_id"]
-          },
-          {
-            foreignKeyName: "purchases_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
             referencedRelation: "yoga_details"
             referencedColumns: ["id"]
           },
@@ -4269,13 +4712,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "services"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "purchases_service_id_fkey"
-            columns: ["service_id"]
-            isOneToOne: false
-            referencedRelation: "services_with_availability"
-            referencedColumns: ["service_id"]
           },
           {
             foreignKeyName: "purchases_user_id_fkey"
@@ -4379,6 +4815,13 @@ export type Database = {
             foreignKeyName: "room_posts_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "events_view"
+            referencedColumns: ["post_id"]
+          },
+          {
+            foreignKeyName: "room_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "meditation_details"
             referencedColumns: ["id"]
           },
@@ -4422,13 +4865,6 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "service_details_view"
-            referencedColumns: ["post_id"]
-          },
-          {
-            foreignKeyName: "room_posts_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "services_with_availability"
             referencedColumns: ["post_id"]
           },
           {
@@ -4524,13 +4960,6 @@ export type Database = {
             referencedRelation: "services"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "service_dates_service_id_fkey"
-            columns: ["service_id"]
-            isOneToOne: false
-            referencedRelation: "services_with_availability"
-            referencedColumns: ["service_id"]
-          },
         ]
       }
       service_reservations: {
@@ -4579,13 +5008,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "services"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "service_reservations_service_id_fkey"
-            columns: ["service_id"]
-            isOneToOne: false
-            referencedRelation: "services_with_availability"
-            referencedColumns: ["service_id"]
           },
           {
             foreignKeyName: "service_reservations_user_id_fkey"
@@ -4693,6 +5115,13 @@ export type Database = {
             foreignKeyName: "services_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: true
+            referencedRelation: "events_view"
+            referencedColumns: ["post_id"]
+          },
+          {
+            foreignKeyName: "services_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: true
             referencedRelation: "meditation_details"
             referencedColumns: ["id"]
           },
@@ -4736,13 +5165,6 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: true
             referencedRelation: "service_details_view"
-            referencedColumns: ["post_id"]
-          },
-          {
-            foreignKeyName: "services_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: true
-            referencedRelation: "services_with_availability"
             referencedColumns: ["post_id"]
           },
           {
@@ -5071,6 +5493,13 @@ export type Database = {
             foreignKeyName: "subscription_content_access_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
+            referencedRelation: "events_view"
+            referencedColumns: ["post_id"]
+          },
+          {
+            foreignKeyName: "subscription_content_access_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
             referencedRelation: "meditation_details"
             referencedColumns: ["id"]
           },
@@ -5114,13 +5543,6 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "service_details_view"
-            referencedColumns: ["post_id"]
-          },
-          {
-            foreignKeyName: "subscription_content_access_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "services_with_availability"
             referencedColumns: ["post_id"]
           },
           {
@@ -5318,6 +5740,13 @@ export type Database = {
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "tickets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_view"
+            referencedColumns: ["event_id"]
+          },
         ]
       }
       transcripts: {
@@ -5354,6 +5783,47 @@ export type Database = {
             columns: ["id"]
             isOneToOne: true
             referencedRelation: "assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_fcm_tokens: {
+        Row: {
+          created_at: string
+          device_info: Json | null
+          id: string
+          is_active: boolean
+          last_used_at: string | null
+          token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_info?: Json | null
+          id?: string
+          is_active?: boolean
+          last_used_at?: string | null
+          token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_info?: Json | null
+          id?: string
+          is_active?: boolean
+          last_used_at?: string | null
+          token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_fcm_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -5884,7 +6354,10 @@ export type Database = {
       comprehensive_services_view: {
         Row: {
           appointments: Json | null
+          auto_confirm: boolean | null
           availability_stats: Json | null
+          booking_workflow: string | null
+          confirmation_deadline_hours: number | null
           content: string | null
           created_at: string | null
           creator: Json | null
@@ -6037,6 +6510,30 @@ export type Database = {
           },
         ]
       }
+      creator_sent_notifications: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          delivered_count: number | null
+          id: string | null
+          recipients: Json | null
+          reference_id: string | null
+          reference_type: string | null
+          sender_id: string | null
+          title: string | null
+          total_recipients: number | null
+          type: Database["public"]["Enums"]["notification_type"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dance_details: {
         Row: {
           body_focus: string | null
@@ -6145,6 +6642,13 @@ export type Database = {
             referencedRelation: "event_details_view"
             referencedColumns: ["event_id"]
           },
+          {
+            foreignKeyName: "event_dates_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_view"
+            referencedColumns: ["event_id"]
+          },
         ]
       }
       event_details_view: {
@@ -6230,6 +6734,57 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "event_details_view"
             referencedColumns: ["event_id"]
+          },
+          {
+            foreignKeyName: "tickets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_view"
+            referencedColumns: ["event_id"]
+          },
+        ]
+      }
+      events_view: {
+        Row: {
+          available_ticket_types_count: number | null
+          content: string | null
+          created_at: string | null
+          creator: Json | null
+          creator_id: string | null
+          date_ids: string[] | null
+          dates: Json | null
+          description: string | null
+          event_id: string | null
+          event_status: string | null
+          event_type: Database["public"]["Enums"]["event_type_enum"] | null
+          featured: boolean | null
+          future_dates: Json | null
+          future_dates_count: number | null
+          has_available_future_dates: boolean | null
+          latest_past_date: string | null
+          location: Json | null
+          location_name: string | null
+          max_price: number | null
+          min_price: number | null
+          next_date: string | null
+          past_dates_count: number | null
+          post_id: string | null
+          room: Json | null
+          slug: string | null
+          tags: Json | null
+          thumbnail_url: string | null
+          ticket_types_count: number | null
+          tickets: Json | null
+          title: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_user_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -6696,13 +7251,6 @@ export type Database = {
             referencedColumns: ["service_id"]
           },
           {
-            foreignKeyName: "appointment_purchases_service_id_fkey"
-            columns: ["service_id"]
-            isOneToOne: false
-            referencedRelation: "services_with_availability"
-            referencedColumns: ["service_id"]
-          },
-          {
             foreignKeyName: "purchases_owner_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
@@ -6720,37 +7268,9 @@ export type Database = {
       }
       service_details_view: {
         Row: {
-          content: string | null
-          created_at: string | null
-          creator: Json | null
-          creator_id: string | null
-          description: string | null
-          duration: string | null
-          featured: boolean | null
-          location: Json | null
-          post_id: string | null
-          price: number | null
-          service_id: string | null
-          service_type: Database["public"]["Enums"]["event_type_enum"] | null
-          slug: string | null
-          tags: string[] | null
-          thumbnail_url: string | null
-          title: string | null
-          updated_at: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "posts_user_id_fkey"
-            columns: ["creator_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      services_with_availability: {
-        Row: {
-          availability_status: Json | null
+          auto_confirm: boolean | null
+          booking_workflow: string | null
+          confirmation_deadline_hours: number | null
           content: string | null
           created_at: string | null
           creator: Json | null
@@ -6827,13 +7347,6 @@ export type Database = {
             referencedColumns: ["service_id"]
           },
           {
-            foreignKeyName: "appointment_purchases_service_id_fkey"
-            columns: ["service_id"]
-            isOneToOne: false
-            referencedRelation: "services_with_availability"
-            referencedColumns: ["service_id"]
-          },
-          {
             foreignKeyName: "purchases_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -6861,6 +7374,46 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_notifications_view: {
+        Row: {
+          action_url: string | null
+          audience_type:
+            | Database["public"]["Enums"]["notification_audience_type"]
+            | null
+          content: string | null
+          created_at: string | null
+          id: string | null
+          is_read: boolean | null
+          metadata: Json | null
+          reference_id: string | null
+          reference_type: string | null
+          sender_id: string | null
+          title: string | null
+          type: Database["public"]["Enums"]["notification_type"] | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      user_notifications_with_broadcasts: {
+        Row: {
+          action_url: string | null
+          audience_type:
+            | Database["public"]["Enums"]["notification_audience_type"]
+            | null
+          content: string | null
+          created_at: string | null
+          id: string | null
+          is_read: boolean | null
+          metadata: Json | null
+          reference_id: string | null
+          reference_type: string | null
+          sender_id: string | null
+          title: string | null
+          type: Database["public"]["Enums"]["notification_type"] | null
+          user_id: string | null
+        }
+        Relationships: []
       }
       yoga_details: {
         Row: {
@@ -7221,6 +7774,15 @@ export type Database = {
             }
             Returns: string
           }
+      approve_appointment_request: {
+        Args: {
+          p_appointment_id: string
+          p_price: number
+          p_message?: string
+          p_checkout_base_url?: string
+        }
+        Returns: Json
+      }
       associate_post_location: {
         Args: {
           p_post_id: string
@@ -7391,6 +7953,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      cleanup_old_notifications: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       create_article_content_with_details: {
         Args: {
           p_title: string
@@ -7403,6 +7969,19 @@ export type Database = {
           user_id?: string
         }
         Returns: Database["public"]["CompositeTypes"]["article_content_creation_result"]
+      }
+      create_broadcast_announcement: {
+        Args: {
+          p_title: string
+          p_content: string
+          p_action_url?: string
+          p_reference_id?: string
+          p_reference_type?: string
+          p_metadata?: Json
+          p_audience_type?: Database["public"]["Enums"]["notification_audience_type"]
+          p_audience_criteria?: Json
+        }
+        Returns: string
       }
       create_ceremony_content_with_details: {
         Args: {
@@ -7493,6 +8072,18 @@ export type Database = {
           user_id?: string
         }
         Returns: Database["public"]["CompositeTypes"]["event_creation_result"]
+      }
+      create_follower_broadcast: {
+        Args: {
+          p_follower_ids: string[]
+          p_title: string
+          p_content: string
+          p_action_url?: string
+          p_reference_id?: string
+          p_reference_type?: string
+          p_metadata?: Json
+        }
+        Returns: string
       }
       create_generic_ondemand_content: {
         Args: {
@@ -7611,6 +8202,46 @@ export type Database = {
         }
         Returns: Database["public"]["CompositeTypes"]["neuroflow_content_creation_result"]
       }
+      create_notification: {
+        Args: {
+          p_user_id: string
+          p_sender_id: string
+          p_title: string
+          p_content: string
+          p_type: string
+          p_priority?: string
+          p_related_entity_id?: string
+          p_action?: string
+          p_metadata?: Json
+        }
+        Returns: string
+      }
+      create_notification_for_all_users: {
+        Args: {
+          p_title: string
+          p_content: string
+          p_type: string
+          p_action_url?: string
+          p_reference_id?: string
+          p_reference_type?: string
+          p_metadata?: Json
+        }
+        Returns: number
+      }
+      create_notifications_batch: {
+        Args: {
+          p_user_ids: string[]
+          p_sender_id: string
+          p_title: string
+          p_content: string
+          p_type: string
+          p_priority?: string
+          p_related_entity_id?: string
+          p_action?: string
+          p_metadata?: Json
+        }
+        Returns: string[]
+      }
       create_ondemand_content_with_details: {
         Args: {
           p_title: string
@@ -7656,6 +8287,15 @@ export type Database = {
         }
         Returns: string
       }
+      create_or_update_batched_chat_notification: {
+        Args: {
+          p_user_id: string
+          p_sender_id: string
+          p_chat_id: string
+          p_message_preview: string
+        }
+        Returns: string
+      }
       create_post: {
         Args: {
           p_title: string
@@ -7690,6 +8330,9 @@ export type Database = {
           p_price: number
           p_duration: unknown
           p_type: Database["public"]["Enums"]["event_type_enum"]
+          p_booking_workflow?: string
+          p_auto_confirm?: boolean
+          p_confirmation_deadline_hours?: number
           user_id?: string
         }
         Returns: Database["public"]["CompositeTypes"]["service_content_creation_result"]
@@ -7736,6 +8379,18 @@ export type Database = {
           event: Json
         }
         Returns: Json
+      }
+      deactivate_fcm_token: {
+        Args: {
+          p_token: string
+        }
+        Returns: boolean
+      }
+      debug_notification_type: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          enumlabel: string
+        }[]
       }
       delete_playlist: {
         Args: {
@@ -7805,6 +8460,56 @@ export type Database = {
           geom2: unknown
         }
         Returns: boolean
+      }
+      filter_events: {
+        Args: {
+          filters?: Json
+        }
+        Returns: {
+          event_id: string
+          post_id: string
+          slug: string
+          title: string
+          description: string
+          thumbnail_url: string
+          event_type: Database["public"]["Enums"]["event_type_enum"]
+          location_name: string
+          location: Json
+          creator: Json
+          featured: boolean
+          next_date: string
+          latest_past_date: string
+          min_price: number
+          tags: Json
+          event_status: string
+          has_available_tickets: boolean
+          distance: number
+          attendees_count: number
+          date_attendees: Json
+          total_count: number
+        }[]
+      }
+      filter_service_appointments: {
+        Args: {
+          filters: Json
+        }
+        Returns: {
+          appointment_id: string
+          service_id: string
+          post_id: string
+          service_title: string
+          appointment_date: string
+          duration: unknown
+          method: string
+          service_type: string
+          status: string
+          client_id: string
+          client_name: string
+          client_avatar: string
+          price: number
+          is_future: boolean
+          total_count: number
+        }[]
       }
       find_nearby_locations: {
         Args: {
@@ -8981,6 +9686,23 @@ export type Database = {
           tag_name: string
         }[]
       }
+      get_potential_recipients: {
+        Args: {
+          p_params: Json
+        }
+        Returns: {
+          recipient_id: string
+          name: string
+          email: string
+          group_type: string
+          avatar_url: string
+          appointment_id: string
+          booking_id: string
+          appointment_date: string
+          post_title: string
+          tickets_count: number
+        }[]
+      }
       get_proj4_from_srid: {
         Args: {
           "": number
@@ -9001,13 +9723,34 @@ export type Database = {
       }
       get_provider_availability: {
         Args: {
-          p_provider_id: string
-          p_start_date: string
-          p_end_date: string
+          provider_id: string
+          start_date: string
+          end_date: string
         }
         Returns: {
           date: string
           available_slots: Json
+        }[]
+      }
+      get_sent_notifications: {
+        Args: {
+          p_limit?: number
+          p_offset?: number
+          p_type?: string
+          p_reference_id?: string
+          p_start_date?: string
+          p_end_date?: string
+        }
+        Returns: {
+          id: string
+          title: string
+          content: string
+          type: Database["public"]["Enums"]["notification_type"]
+          reference_id: string
+          reference_type: string
+          created_at: string
+          recipient_count: number
+          read_count: number
         }[]
       }
       get_service_calendar_availability: {
@@ -9264,6 +10007,19 @@ export type Database = {
         }
         Returns: undefined
       }
+      handle_appointment_request: {
+        Args: {
+          p_service_id: string
+          p_user_id: string
+          p_owner_id: string
+          p_post_id: string
+          p_appointment_date: string
+          p_duration: number
+          p_method?: string
+          p_message?: string
+        }
+        Returns: Json
+      }
       has_active_subscription: {
         Args: {
           subscription_creator_id: string
@@ -9341,6 +10097,19 @@ export type Database = {
         }
         Returns: number
       }
+      legacy_create_notification: {
+        Args: {
+          p_user_id: string
+          p_title: string
+          p_content: string
+          p_type: string
+          p_action_url?: string
+          p_reference_id?: string
+          p_reference_type?: string
+          p_metadata?: Json
+        }
+        Returns: string
+      }
       link_journal_to_content: {
         Args: {
           p_journal_entry_id: number
@@ -9377,12 +10146,64 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      mark_all_notifications_as_read: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      mark_broadcast_notification_read: {
+        Args: {
+          p_notification_id: string
+          p_user_id?: string
+        }
+        Returns: boolean
+      }
       mark_message_as_read: {
         Args: {
           p_message_id: string
           p_user_id: string
         }
         Returns: boolean
+      }
+      mark_notification_as_read: {
+        Args: {
+          p_notification_id: string
+        }
+        Returns: boolean
+      }
+      mark_notifications_as_read:
+        | {
+            Args: {
+              p_notification_ids: string[]
+              p_user_id?: string
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_notification_ids?: string[]
+              p_mark_all?: boolean
+            }
+            Returns: number
+          }
+      notify_event_attendees: {
+        Args: {
+          p_event_id: string
+          p_title: string
+          p_content: string
+          p_action_url?: string
+          p_metadata?: Json
+        }
+        Returns: number
+      }
+      notify_service_subscribers: {
+        Args: {
+          p_service_id: string
+          p_title: string
+          p_content: string
+          p_action_url?: string
+          p_metadata?: Json
+        }
+        Returns: number
       }
       path: {
         Args: {
@@ -9655,6 +10476,13 @@ export type Database = {
         }
         Returns: Json
       }
+      process_appointment_payment_confirmation: {
+        Args: {
+          p_purchase_id: string
+          p_payment_intent_id: string
+        }
+        Returns: Json
+      }
       process_event_booking_payment: {
         Args: {
           p_purchase_id: string
@@ -9679,6 +10507,10 @@ export type Database = {
           event_data: Json
         }
         Returns: string
+      }
+      process_pending_notifications: {
+        Args: Record<PropertyKey, never>
+        Returns: number
       }
       process_subscription_updated: {
         Args: {
@@ -9727,6 +10559,13 @@ export type Database = {
         }
         Returns: string
       }
+      register_fcm_token: {
+        Args: {
+          p_token: string
+          p_device_info?: Json
+        }
+        Returns: string
+      }
       request_service_appointment: {
         Args: {
           p_service_id: string
@@ -9736,6 +10575,17 @@ export type Database = {
           p_service_type?: string
           p_notes?: string
           p_client_id?: string
+        }
+        Returns: Json
+      }
+      reschedule_appointment_request: {
+        Args: {
+          p_appointment_id: string
+          p_new_date: string
+          p_duration?: number
+          p_message?: string
+          p_base_url?: string
+          p_alternative_dates?: string[]
         }
         Returns: Json
       }
@@ -9754,6 +10604,7 @@ export type Database = {
           p_action: string
           p_alternative_time?: string
           p_provider_notes?: string
+          p_base_url?: string
         }
         Returns: Json
       }
@@ -11703,6 +12554,15 @@ export type Database = {
         }
         Returns: number
       }
+      suggest_appointment_dates: {
+        Args: {
+          p_appointment_id: string
+          p_suggested_dates: string[]
+          p_message?: string
+          p_base_url?: string
+        }
+        Returns: Json
+      }
       text: {
         Args: {
           "": unknown
@@ -11890,6 +12750,20 @@ export type Database = {
         }
         Returns: Database["public"]["CompositeTypes"]["neuroflow_content_creation_result"]
       }
+      update_notification_preferences: {
+        Args: {
+          p_type: string
+          p_in_app?: boolean
+          p_email?: boolean
+          p_push?: boolean
+          p_sms?: boolean
+        }
+        Returns: boolean
+      }
+      update_notification_statistics: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       update_ondemand_content_with_details: {
         Args: {
           p_post_id: string
@@ -11917,6 +12791,15 @@ export type Database = {
         }
         Returns: Database["public"]["CompositeTypes"]["ondemand_content_creation_result"]
       }
+      update_service_booking_settings: {
+        Args: {
+          p_service_id: string
+          p_booking_workflow: string
+          p_auto_confirm: boolean
+          p_confirmation_deadline_hours?: number
+        }
+        Returns: Json
+      }
       update_service_content_with_details: {
         Args: {
           p_post_id: string
@@ -11931,6 +12814,9 @@ export type Database = {
           p_price: number
           p_duration: unknown
           p_type: Database["public"]["Enums"]["event_type_enum"]
+          p_booking_workflow?: string
+          p_auto_confirm?: boolean
+          p_confirmation_deadline_hours?: number
         }
         Returns: Database["public"]["CompositeTypes"]["service_content_creation_result"]
       }
@@ -11986,6 +12872,13 @@ export type Database = {
         }
         Returns: string
       }
+      upsert_stripe_customer: {
+        Args: {
+          p_user_id: string
+          p_stripe_customer_id: string
+        }
+        Returns: undefined
+      }
       upsert_user_location: {
         Args: {
           p_lat: number
@@ -12002,15 +12895,34 @@ export type Database = {
           user_id: string
         }
       }
+      user_can_view_notification: {
+        Args: {
+          notification_row: unknown
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       app_permission: "select" | "insert" | "update" | "delete"
       chat_type_enum: "private" | "group" | "broadcast"
+      event_status_enum: "upcoming" | "past" | "all"
       event_type_enum: "online" | "in-person" | "hybrid"
       journal_entry_privacy_enum: "private" | "public" | "shared"
       media_type_enum: "video" | "audio"
       message_status_enum: "delivered" | "read" | "deleted"
       mood_enum: "great" | "good" | "neutral" | "poor" | "terrible"
+      notification_audience_type: "individual" | "all" | "segment" | "followers"
+      notification_type:
+        | "appointment"
+        | "system"
+        | "general"
+        | "announcement"
+        | "payment"
+        | "booking"
+        | "waitlist"
+        | "reminder"
+        | "message"
+        | "broadcast"
       post_type_enum:
         | "event"
         | "service"
@@ -12107,6 +13019,15 @@ export type Database = {
         start_date: string | null
         end_date: string | null
       }
+      event_filters: {
+        status: Database["public"]["Enums"]["event_status_enum"] | null
+        event_types: Database["public"]["Enums"]["event_type_enum"][] | null
+        creator_ids: string[] | null
+        tags: string[] | null
+        user_lat: number | null
+        user_lon: number | null
+        distance_limit: number | null
+      }
       generic_ondemand_content_creation_result: {
         post_id: string | null
         ondemand_media_id: string | null
@@ -12116,6 +13037,16 @@ export type Database = {
       geometry_dump: {
         path: number[] | null
         geom: unknown | null
+      }
+      get_potential_recipients_params: {
+        type: string | null
+        postid: string | null
+        serviceid: string | null
+        eventid: string | null
+        appointmentid: string | null
+        bookingid: string | null
+        eventdate: string | null
+        limit: number | null
       }
       meditation_content_creation_result: {
         post_id: string | null
