@@ -52,35 +52,62 @@ export interface Participant {
 
 // Helper functions
 export const fetchChatRooms = async (userId: string): Promise<ChatRoom[]> => {
+  console.log("🔍 fetchChatRooms called with userId:", userId);
+
   // Use the parameterized version for certainty
   const { data, error } = await supabase.rpc("get_user_chat_rooms", {
     p_user_id: userId,
   });
 
   if (error) {
+    console.error("📊 RPC Response - Error:", error);
     console.warn(error);
     throw new Error(error.message);
   }
 
+  console.log("📊 RPC Response - Error:", error);
+  console.log("📊 RPC Response - Data:", data);
+
+  if (!data) {
+    console.warn("⚠️ No data returned from get_user_chat_rooms");
+    return [];
+  }
+
+  console.log("✅ RPC call successful");
+  console.log("📈 Processing", data.length, "chat rooms");
+
   // Convert the returned data structure to match the ChatRoom interface
-  return data.map((room: any) => ({
-    id: room.room_id,
-    name: room.room_name,
-    type: room.room_type,
-    is_broadcast: room.is_broadcast,
-    description: room.room_description,
-    last_message: room.latest_message
-      ? {
-          message: room.latest_message,
-          created_at: room.latest_message_time,
-          sender_id: room.latest_message_sender,
-        }
-      : undefined,
-    unread_count: room.unread_count,
-    created_at: room.created_at,
-    updated_at: room.updated_at,
-    participants: [], // This will be populated separately if needed
-  }));
+  const transformedRooms = data.map((room: any, index: number) => {
+    console.log(`🏠 Processing room ${index + 1}:`, room);
+
+    const transformedRoom = {
+      id: room.room_id,
+      name: room.room_name,
+      type: room.room_type,
+      is_broadcast: room.is_broadcast,
+      description: room.room_description,
+      last_message: room.latest_message
+        ? {
+            message: room.latest_message,
+            created_at: room.latest_message_time,
+            sender_id: room.latest_message_sender,
+          }
+        : undefined,
+      unread_count: room.unread_count,
+      created_at: room.created_at,
+      updated_at: room.updated_at,
+      participants: [], // This will be populated separately if needed
+    };
+
+    console.log(`✅ Transformed room ${index + 1}:`, transformedRoom);
+    return transformedRoom;
+  });
+
+  console.log("🎉 All rooms transformed successfully:");
+  console.log("📊 Final rooms array:", transformedRooms);
+  console.log("📈 Returning", transformedRooms.length, "rooms");
+
+  return transformedRooms;
 };
 
 export const fetchChatMessages = async (
@@ -92,35 +119,39 @@ export const fetchChatMessages = async (
     around_message_id?: string;
   }
 ): Promise<ChatMessage[]> => {
-  // If no options are provided, use the simplified version
-  if (!options || Object.keys(options).length === 0) {
-    const { data, error } = await supabase.rpc("get_chat_messages", {
-      p_chat_room_id: roomId,
-    });
+  // Add null check for roomId
+  if (!roomId || roomId === "undefined") {
+    console.error("fetchChatMessages called with invalid roomId:", roomId);
+    return [];
+  }
+
+  console.log("🔍 fetchChatMessages called with roomId:", roomId);
+  console.log("📋 Options:", options);
+
+  try {
+    // Use the correct RPC function name
+    const { data, error } = await supabase.rpc(
+      "get_chat_messages_with_reactions",
+      {
+        p_chat_room_id: roomId,
+        p_limit: options?.limit || 50,
+        p_before: options?.before || undefined,
+        p_after: options?.after || undefined,
+        p_around_message_id: options?.around_message_id || undefined,
+      }
+    );
 
     if (error) {
       console.error("Error fetching messages:", error);
       throw new Error(error.message);
     }
 
-    return formatChatMessages(data, roomId);
+    console.log("✅ Messages fetched successfully:", data?.length || 0);
+    return formatChatMessages(data || [], roomId);
+  } catch (error) {
+    console.error("Exception in fetchChatMessages:", error);
+    throw error;
   }
-
-  // Otherwise use the full version with all parameters
-  const { data, error } = await supabase.rpc("get_chat_messages", {
-    p_chat_room_id: roomId,
-    p_limit: options.limit || 50,
-    p_before: options.before || null,
-    p_after: options.after || null,
-    p_around_message_id: options.around_message_id || null,
-  });
-
-  if (error) {
-    console.error("Error fetching messages:", error);
-    throw new Error(error.message);
-  }
-
-  return formatChatMessages(data, roomId);
 };
 
 // Helper to format chat messages

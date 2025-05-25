@@ -8422,7 +8422,6 @@ ALTER FUNCTION "public"."process_chat_message_notification"() OWNER TO "postgres
 COMMENT ON FUNCTION "public"."process_chat_message_notification"() IS 'Generates batched notifications for new chat messages';
 
 
-
 CREATE OR REPLACE FUNCTION "public"."process_event_booking_payment"("p_purchase_id" "uuid", "p_payment_intent_id" "text", "p_ticket_id" "uuid", "p_date_id" "uuid", "p_attendees" integer DEFAULT 1, "p_is_virtual" boolean DEFAULT false) RETURNS "jsonb"
     LANGUAGE "plpgsql" SECURITY DEFINER
     SET "search_path" TO 'public'
@@ -9230,9 +9229,9 @@ BEGIN
             v_initial_status := 'confirmed';
         WHEN v_booking_workflow = 'pre-approval' THEN
             IF v_auto_confirm THEN
-                v_initial_status := 'pending_payment';
-            ELSE
                 v_initial_status := 'pending_auto_payment';
+            ELSE
+                v_initial_status := 'pending_approval';
             END IF;
         WHEN v_booking_workflow = 'waitlist' THEN
             v_initial_status := 'pending_approval';
