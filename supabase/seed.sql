@@ -764,7 +764,13 @@ BEGIN
             'pre-approval',
             false,
             24,
-            current_creator_id
+            null, -- p_capacity
+            false, -- p_waitlist_enabled
+            current_creator_id, -- user_id
+            '{}', -- p_universal_package_ids (empty array)
+            1, -- p_package_credits_required
+            'pay_per_use'::access_pattern_enum, -- p_package_access_type
+            0 -- p_package_priority
         );
 
         RAISE NOTICE 'Created service: %', v_result_service;

@@ -1,12 +1,18 @@
+-- Generated with srtd from template: supabase/migrations-templates/restore_profile_hooks.sql
+-- You very likely **DO NOT** want to manually edit this generated file.
+
+BEGIN;
+
+
 -- =============================================================================
 -- RESTORE PROFILE HOOKS - MISSING TRIGGER FOR NEW USER SETUP
 -- =============================================================================
 -- This template restores the critical trigger that sets up profiles, user roles,
 -- and timezones when new users sign up.
 
-
 -- Create the trigger that calls handle_new_user when a new user is created
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+
 
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
@@ -66,3 +72,9 @@ $$;
 
 COMMENT ON FUNCTION public.handle_new_user() IS 
 'Sets up user profile, role, and timezone when a new user signs up. Called by trigger on auth.users.'; 
+
+
+COMMIT;
+
+-- Last built: Never
+-- Built with https://github.com/t1mmen/srtd

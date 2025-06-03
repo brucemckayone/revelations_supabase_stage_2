@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "lastTimestamp": "20250522151954",
+  "lastTimestamp": "20250530220735",
   "templates": {
     "supabase/migrations-templates/transcripts.sql": {
       "lastBuildHash": "6868cda80b2d5883d8b103ef51e29b37",
@@ -111,6 +111,41 @@
       "lastBuildHash": "fb1b8d3a5bd81cb756b386c4e11321be",
       "lastBuildDate": "2025-05-22T15:19:44.425Z",
       "lastMigrationFile": "20250522151954_srtd-add_metadata_column.sql"
+    },
+    "supabase/migrations-templates/2025060600006_package_purchase_webhook_function.sql": {
+      "lastBuildHash": "1066a165efb758b715293a0d2dbe467e",
+      "lastBuildDate": "2025-05-30T22:07:29.454Z",
+      "lastMigrationFile": "20250530220729_srtd-2025060600006_package_purchase_webhook_function.sql"
+    },
+    "supabase/migrations-templates/20250107000011_dual_purchase_options_enhancement.sql": {
+      "lastBuildHash": "97a7d540b0b6c1e9701391ef6750630a",
+      "lastBuildDate": "2025-05-30T22:07:29.456Z",
+      "lastMigrationFile": "20250530220730_srtd-20250107000011_dual_purchase_options_enhancement.sql"
+    },
+    "supabase/migrations-templates/20250107000010_update_service_content_functions_with_universal_packages.sql": {
+      "lastBuildHash": "5f579431fa73487f98d02a614244990c",
+      "lastBuildDate": "2025-05-30T22:07:29.463Z",
+      "lastMigrationFile": "20250530220731_srtd-20250107000010_update_service_content_functions_with_universal_packages.sql"
+    },
+    "supabase/migrations-templates/20250107000009_universal_packages_webhook_functions.sql": {
+      "lastBuildHash": "23c45286d9a1ce211ff90698f74959b3",
+      "lastBuildDate": "2025-05-30T22:07:29.464Z",
+      "lastMigrationFile": "20250530220732_srtd-20250107000009_universal_packages_webhook_functions.sql"
+    },
+    "supabase/migrations-templates/20250107000008_universal_packages_helpers.sql": {
+      "lastBuildHash": "8ae1ec95e144dbbce4f28b60f4aec55b",
+      "lastBuildDate": "2025-05-30T22:07:29.465Z",
+      "lastMigrationFile": "20250530220733_srtd-20250107000008_universal_packages_helpers.sql"
+    },
+    "supabase/migrations-templates/20250107000007_universal_access_packages_system.sql": {
+      "lastBuildHash": "fa9489085370bcb8ae196d8ad021a00b",
+      "lastBuildDate": "2025-05-30T22:07:29.466Z",
+      "lastMigrationFile": "20250530220734_srtd-20250107000007_universal_access_packages_system.sql"
+    },
+    "supabase/migrations-templates/202501070000012_enhanced_service_details_with_universal_packages.sql": {
+      "lastBuildHash": "562218f6904431b6d8c7470e3dcacde2",
+      "lastBuildDate": "2025-05-30T22:07:29.468Z",
+      "lastMigrationFile": "20250530220735_srtd-202501070000012_enhanced_service_details_with_universal_packages.sql"
     }
   }
 }

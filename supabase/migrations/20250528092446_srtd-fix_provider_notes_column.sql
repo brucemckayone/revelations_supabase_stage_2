@@ -3,11 +3,13 @@
 
 BEGIN;
 
+
 -- =============================================================================
 -- FIX PROVIDER NOTES COLUMN ISSUE
 -- =============================================================================
 -- This template fixes the issue where some functions reference 'provider_notes' 
 -- column that doesn't exist in the appointment_purchases table.
+
 
 -- Add provider_notes column if it doesn't exist
 DO $$
@@ -188,6 +190,8 @@ END $$;
 
 COMMENT ON FUNCTION public.respond_to_appointment_request(uuid, text, timestamptz, text, text) IS 
 'Updated function to handle appointment responses with proper provider_notes column support. Handles confirm, reject, and suggest actions.'; 
+
+
 
 COMMIT;
 

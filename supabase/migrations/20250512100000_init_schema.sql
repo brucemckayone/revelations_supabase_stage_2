@@ -432,7 +432,8 @@ CREATE TYPE "public"."purchase_type_enum" AS ENUM (
     'event',
     'appointment',
     'subscription',
-    'article'
+    'article',
+    'package'
 );
 
 

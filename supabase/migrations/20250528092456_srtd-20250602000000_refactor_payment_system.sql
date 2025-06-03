@@ -13,6 +13,8 @@ BEGIN;
 -- 1. EXTEND PAYMENT STATUS ENUM
 -- =============================================================================
 
+
+
 -- Add canceled status to payment enum
 ALTER TYPE public.purchase_payment_status_enum ADD VALUE IF NOT EXISTS 'canceled';
 
@@ -69,6 +71,7 @@ END $$;
 -- =============================================================================
 
 -- Enhanced payment processing function with better error handling
+drop function if exists public.process_payment_webhook;
 CREATE OR REPLACE FUNCTION public.process_payment_webhook(
   p_appointment_id UUID,
   p_payment_status TEXT,
@@ -156,72 +159,11 @@ BEGIN
 END $$;
 
 -- =============================================================================
--- 4. PAYMENT LINK GENERATION HELPER
--- =============================================================================
-
--- Function to generate consistent payment links
-CREATE OR REPLACE FUNCTION public.generate_payment_link(
-  p_appointment_id UUID,
-  p_amount NUMERIC,
-  p_currency TEXT DEFAULT 'USD',
-  p_description TEXT DEFAULT NULL
-) RETURNS TEXT
-LANGUAGE plpgsql
-SECURITY DEFINER
-AS $$
-DECLARE
-  v_appointment RECORD;
-  v_service_name TEXT;
-  v_payment_link TEXT;
-BEGIN
-  -- Get appointment and service details
-  SELECT 
-    ap.*,
-    s.name as service_name,
-    p.user_id as client_id
-  INTO v_appointment
-  FROM public.appointment_purchases ap
-  JOIN public.services s ON ap.service_id = s.id
-  JOIN public.purchases p ON ap.purchase_id = p.id
-  WHERE ap.id = p_appointment_id;
-
-  IF v_appointment IS NULL THEN
-    RAISE EXCEPTION 'Appointment not found: %', p_appointment_id;
-  END IF;
-
-  -- Build description if not provided
-  IF p_description IS NULL THEN
-    p_description := 'Payment for ' || COALESCE(v_appointment.service_name, 'service') ||
-                     ' appointment on ' || 
-                     to_char(v_appointment.requested_date, 'DD/MM/YYYY HH24:MI');
-  END IF;
-
-  -- This would typically integrate with your payment provider (Stripe, etc.)
-  -- For now, return a placeholder that can be replaced with actual implementation
-  v_payment_link := format(
-    '/payments/checkout?appointment_id=%s&amount=%s&currency=%s&description=%s',
-    p_appointment_id,
-    p_amount,
-    p_currency,
-    encode(p_description::bytea, 'base64')
-  );
-
-  -- Update appointment with payment link
-  UPDATE public.appointment_purchases
-  SET 
-    payment_link = v_payment_link,
-    quoted_price = p_amount,
-    updated_at = now()
-  WHERE id = p_appointment_id;
-
-  RETURN v_payment_link;
-END $$;
-
--- =============================================================================
 -- 5. PAYMENT STATUS VALIDATION
 -- =============================================================================
 
 -- Function to validate payment status transitions
+drop function if exists public.validate_payment_status_transition;
 CREATE OR REPLACE FUNCTION public.validate_payment_status_transition(
   p_current_status TEXT,
   p_new_status TEXT
@@ -287,11 +229,9 @@ WHERE payment_method IS NOT NULL;
 -- 8. COMMENTS FOR DOCUMENTATION
 -- =============================================================================
 
+
 COMMENT ON FUNCTION public.process_payment_webhook(UUID, TEXT, TEXT, TEXT, TEXT) IS 
 'Processes payment webhook updates with comprehensive error handling and status tracking.';
-
-COMMENT ON FUNCTION public.generate_payment_link(UUID, NUMERIC, TEXT, TEXT) IS 
-'Generates consistent payment links for appointments with proper descriptions.';
 
 COMMENT ON FUNCTION public.validate_payment_status_transition(TEXT, TEXT) IS 
 'Validates that appointment status transitions follow business rules.';
@@ -308,6 +248,7 @@ COMMENT ON FUNCTION public.validate_payment_status_transition(TEXT, TEXT) IS
 -- 5. Cleanup of null content issues
 -- 6. Performance indexes for payment lookups
 -- 7. Proper documentation and comments 
+
 
 COMMIT;
 

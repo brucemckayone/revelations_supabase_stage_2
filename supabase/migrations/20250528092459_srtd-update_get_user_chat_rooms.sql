@@ -1,15 +1,16 @@
+-- Generated with srtd from template: supabase/migrations-templates/update_get_user_chat_rooms.sql
+-- You very likely **DO NOT** want to manually edit this generated file.
+
+
+
 -- =============================================================================
 -- UPDATE GET_USER_CHAT_ROOMS FUNCTION
 -- =============================================================================
 -- This migration updates the get_user_chat_rooms function to include the new
 -- specialized chat channels fields that were added in the system.
 
--- Drop the existing functions to recreate with new signature
-DROP FUNCTION IF EXISTS public.get_user_chat_rooms(uuid);
-DROP FUNCTION IF EXISTS public.get_user_chat_rooms();
 
-
-
+drop function if exists public.get_user_chat_rooms(UUID);
 -- Create updated function with new specialized chat fields
 CREATE OR REPLACE FUNCTION public.get_user_chat_rooms(p_user_id UUID)
 RETURNS TABLE(
@@ -93,6 +94,8 @@ BEGIN
 END;
 $$;
 
+
+drop function if exists public.get_user_chat_rooms();
 -- Recreate the convenience function that uses auth.uid()
 CREATE OR REPLACE FUNCTION public.get_user_chat_rooms()
 RETURNS TABLE(
@@ -122,9 +125,9 @@ BEGIN
 END;
 $$;
 
--- Set ownership
-ALTER FUNCTION public.get_user_chat_rooms(UUID) OWNER TO postgres;
-ALTER FUNCTION public.get_user_chat_rooms() OWNER TO postgres;
+-- -- Set ownership
+-- ALTER FUNCTION public.get_user_chat_rooms(UUID) OWNER TO postgres;
+-- ALTER FUNCTION public.get_user_chat_rooms() OWNER TO postgres;
 
 -- Grant permissions
 GRANT ALL ON FUNCTION public.get_user_chat_rooms(UUID) TO anon;
@@ -150,3 +153,8 @@ COMMENT ON FUNCTION public.get_user_chat_rooms() IS
 -- 2. Added filtering for non-superseded messages in latest_messages CTE
 -- 3. Maintained backward compatibility with existing function signature
 -- 4. Added proper permissions and documentation 
+
+
+
+-- Last built: Never
+-- Built with https://github.com/t1mmen/srtd

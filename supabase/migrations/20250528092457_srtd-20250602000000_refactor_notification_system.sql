@@ -13,6 +13,7 @@ BEGIN;
 -- 1. DROP EXISTING TRIGGERS AND FUNCTIONS FOR CLEAN STATE
 -- =============================================================================
 
+
 -- Drop existing notification triggers
 DROP TRIGGER IF EXISTS appointment_status_change_trigger ON public.appointment_purchases;
 DROP TRIGGER IF EXISTS appointment_notifications_trigger ON public.appointment_purchases;
@@ -27,6 +28,7 @@ DROP FUNCTION IF EXISTS public.notify_appointment_status_change;
 -- 2. CREATE ENHANCED NOTIFICATION TRIGGER FUNCTION
 -- =============================================================================
 
+drop function if exists public.handle_appointment_notifications;
 CREATE FUNCTION public.handle_appointment_notifications()
 RETURNS TRIGGER 
 LANGUAGE plpgsql
@@ -358,6 +360,7 @@ $$;
 -- 3. CREATE APPOINTMENT REMINDER SYSTEM
 -- =============================================================================
 
+drop function if exists public.handle_appointment_reminders;
 CREATE FUNCTION public.handle_appointment_reminders()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -453,12 +456,14 @@ $$;
 -- =============================================================================
 
 -- Create the new comprehensive notification trigger
+drop trigger if exists appointment_notifications_trigger on public.appointment_purchases;
 CREATE TRIGGER appointment_notifications_trigger
   AFTER INSERT OR UPDATE OF status, appointment_date ON public.appointment_purchases
   FOR EACH ROW 
   EXECUTE FUNCTION public.handle_appointment_notifications();
 
 -- Create reminder scheduling trigger  
+drop trigger if exists appointment_reminders_trigger on public.appointment_purchases;
 CREATE TRIGGER appointment_reminders_trigger
   AFTER INSERT OR UPDATE OF status, appointment_date ON public.appointment_purchases
   FOR EACH ROW
@@ -469,6 +474,7 @@ CREATE TRIGGER appointment_reminders_trigger
 -- =============================================================================
 
 -- Keep a simplified version for backwards compatibility with external systems
+drop function if exists public.notify_appointment_status_change;
 CREATE FUNCTION public.notify_appointment_status_change() 
 RETURNS trigger
 LANGUAGE plpgsql
@@ -526,6 +532,7 @@ COMMENT ON FUNCTION public.notify_appointment_status_change() IS 'DEPRECATED: Le
 -- 3. Business logic functions are simplified and focus on their core responsibilities
 -- 4. Consistent notification patterns across all appointment status changes
 -- 5. External system integration via pg_notify is preserved 
+
 
 COMMIT;
 

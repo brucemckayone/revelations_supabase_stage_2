@@ -12,6 +12,8 @@ FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 COMMENT ON TRIGGER on_auth_user_created ON auth.users
 IS 'Trigger that runs after a user is created to set up profile, roles, and timezone settings';
 
+
+
 COMMIT;
 
 -- Last built: Never

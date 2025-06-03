@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+When developing you can assume that all changes are applied right away no need to apply them when working in the migrations-template folder. you may run sql queries to see if your result have been applied, if you are unsure.
+
+we are using npx @t1mmen/srtd for idempotant hot reload. changes are automaticly applied in the template folder you should not run apply or watch
+
+
+
+Unless you are very sure about the structure of a table when writing functions or anything that will update that table first make sure you grok the real current table struture
