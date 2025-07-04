@@ -1,38 +1,13 @@
--- Generated with srtd from template: supabase/migrations-templates/fix_provider_notes_column.sql
--- You very likely **DO NOT** want to manually edit this generated file.
+-- Template: fix_respond_to_appointment_service_name.sql
+-- Purpose: Remove reference to deprecated services.name column in respond_to_appointment_request
+-- Generated manually via Cursor
 
 BEGIN;
 
-
--- =============================================================================
--- FIX PROVIDER NOTES COLUMN ISSUE
--- =============================================================================
--- This template fixes the issue where some functions reference 'provider_notes' 
--- column that doesn't exist in the appointment_purchases table.
-
-
--- Add provider_notes column if it doesn't exist
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.columns 
-    WHERE table_name = 'appointment_purchases' 
-    AND column_name = 'provider_notes'
-    AND table_schema = 'public'
-  ) THEN
-    ALTER TABLE public.appointment_purchases 
-    ADD COLUMN provider_notes TEXT;
-    
-    COMMENT ON COLUMN public.appointment_purchases.provider_notes IS 
-    'Notes from the provider about the appointment (separate from client notes)';
-  END IF;
-END $$;
-
--- Drop the conflicting functions first
+-- Drop the outdated function signature if it exists
 DROP FUNCTION IF EXISTS public.respond_to_appointment_request(uuid, text, timestamptz, text, text);
-DROP FUNCTION IF EXISTS public.respond_to_appointment_request;
 
--- Create the main appointment response function
+-- Recreate function without s.name reference
 CREATE OR REPLACE FUNCTION public.respond_to_appointment_request(
   p_appointment_id UUID,
   p_action TEXT,
@@ -189,11 +164,6 @@ EXCEPTION WHEN OTHERS THEN
 END $$;
 
 COMMENT ON FUNCTION public.respond_to_appointment_request(uuid, text, timestamptz, text, text) IS 
-'Updated function to handle appointment responses with proper provider_notes column support. Handles confirm, reject, and suggest actions.'; 
+'Fix: Removed reference to deprecated services.name column that caused error 42703.';
 
-
-
-COMMIT;
-
--- Last built: Never
--- Built with https://github.com/t1mmen/srtd
+COMMIT; 

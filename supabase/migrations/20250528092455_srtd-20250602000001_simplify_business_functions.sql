@@ -25,7 +25,7 @@ DROP FUNCTION IF EXISTS public.update_appointment_with_meeting_link(uuid, text) 
 
 
 -- Simplified appointment approval function
-CREATE FUNCTION public.approve_appointment_request(
+CREATE or replace FUNCTION public.approve_appointment_request(
   p_appointment_id UUID,
   p_quoted_price NUMERIC,
   p_payment_link TEXT,
@@ -63,15 +63,21 @@ BEGIN
     RAISE EXCEPTION 'Appointment not found or not in pending approval status';
   END IF;
 
-  -- Update appointment status and price
+  -- Update appointment status and payment link
   UPDATE public.appointment_purchases
   SET 
     status = 'pending_payment',
-    quoted_price = p_quoted_price,
     payment_link = p_payment_link,
     notes = COALESCE(p_notes, notes),
     updated_at = now()
   WHERE id = p_appointment_id;
+
+  -- Update the price in the purchases table
+  UPDATE public.purchases
+  SET 
+    amount = p_quoted_price,
+    updated_at = now()
+  WHERE id = v_appointment.purchase_id;
 
   -- Get or create specialized appointment chat room
   v_chat_room_id := public.get_or_create_appointment_chat(
@@ -79,7 +85,7 @@ BEGIN
     v_appointment.client_id,
     v_appointment.owner_id,
     v_appointment.service_name,
-    v_appointment.requested_date
+    v_appointment.appointment_date
   );
 
   -- Update appointment status message in specialized chat
@@ -101,17 +107,18 @@ BEGIN
     'message_id', v_message_id,
     'client_name', v_appointment.client_name,
     'service_name', v_appointment.service_name,
-    'appointment_date', v_appointment.requested_date
+    'appointment_date', v_appointment.appointment_date
   );
 
   RETURN v_result;
 END $$;
 
+drop function if exists public.process_appointment_payment_confirmation;
 -- Payment confirmation function with specialized chat integration
-CREATE FUNCTION public.process_appointment_payment_confirmation(
+CREATE or replace FUNCTION public.process_appointment_payment_confirmation(
   p_purchase_id UUID,
   p_payment_intent_id TEXT
-) RETURNS JSON
+) RETURNS JSONB
 LANGUAGE plpgsql
 SECURITY DEFINER
 AS $$
@@ -119,10 +126,11 @@ DECLARE
   v_appointment RECORD;
   v_chat_room_id UUID;
   v_message_id UUID;
-  v_result JSON;
+  v_result JSONB;
   v_user_id UUID;
   v_owner_id UUID;
   v_appointment_id UUID;
+  v_meeting_url TEXT;
 BEGIN
   -- Update purchase status and get user details
   UPDATE public.purchases
@@ -138,13 +146,14 @@ BEGIN
     RAISE EXCEPTION 'Purchase not found: %', p_purchase_id;
   END IF;
 
-  -- Get appointment details
+  -- Get appointment details including service type and method
   SELECT 
     ap.*,
     p.title as service_name,
     pu.owner_id,
     uc.full_name as client_name,
-    uo.full_name as owner_name
+    uo.full_name as owner_name,
+    s.type as service_delivery_type  -- Renamed to avoid confusion
   INTO v_appointment
   FROM public.appointment_purchases ap
   JOIN public.services s ON ap.service_id = s.id
@@ -162,31 +171,47 @@ BEGIN
 
   v_appointment_id := v_appointment.id;
 
-  -- Update appointment status
-  UPDATE public.appointment_purchases
-  SET 
-    status = 'confirmed',
-    updated_at = now()
-  WHERE id = v_appointment_id;
+  -- Generate meeting URL for video/online appointments
+  IF v_appointment.method = 'video' OR v_appointment.service_delivery_type IN ('online', 'hybrid') THEN
+    v_meeting_url := 'https://local.revelations.com/meeting/private/' || gen_random_uuid();
+    
+    -- Update appointment with meeting URL
+    UPDATE public.appointment_purchases
+    SET 
+      status = 'confirmed',
+      meeting_url = v_meeting_url,
+      payment_link = NULL, -- Clear payment link as it's no longer needed
+      updated_at = now()
+    WHERE id = v_appointment_id;
+  ELSE
+    -- For in-person appointments, just update status
+    UPDATE public.appointment_purchases
+    SET 
+      status = 'confirmed',
+      payment_link = NULL, -- Clear payment link as it's no longer needed
+      updated_at = now()
+    WHERE id = v_appointment_id;
+  END IF;
 
-  -- Get existing appointment chat room
-  SELECT id INTO v_chat_room_id
-  FROM public.chat_rooms
-  WHERE associated_appointment_id = v_appointment_id
-    AND type = 'appointment_booking';
-
-
+  -- Get or create appointment chat room
+  v_chat_room_id := public.get_or_create_appointment_chat(
+    v_appointment_id,
+    v_user_id,
+    v_owner_id,
+    v_appointment.service_name,
+    v_appointment.appointment_date
+  );
 
   -- Update appointment status message with confirmation
   v_message_id := public.update_appointment_chat_message(
     v_appointment_id,
     'confirmed',
     NULL, -- remove payment link
-    NULL -- meeting URL can be added later
+    v_meeting_url -- include meeting URL if generated
   );
 
   -- Build response
-  v_result := json_build_object(
+  v_result := jsonb_build_object(
     'success', true,
     'purchase_id', p_purchase_id,
     'appointment_id', v_appointment_id,
@@ -196,11 +221,19 @@ BEGIN
     'message_id', v_message_id
   );
 
+  -- Add meeting URL to result if applicable
+  IF v_meeting_url IS NOT NULL THEN
+    v_result := jsonb_set(v_result, '{meeting_url}', to_jsonb(v_meeting_url));
+  END IF;
+
+  -- Trigger notification
+  PERFORM pg_notify('appointment_confirmed', v_result::text);
+
   RETURN v_result;
 END $$;
 
 -- Combined approval and payment function for direct payments
-CREATE FUNCTION public.respond_to_appointment_request(
+CREATE or replace FUNCTION public.respond_to_appointment_request(
   p_appointment_id UUID,
   p_action TEXT,
   p_quoted_price NUMERIC DEFAULT NULL,
@@ -260,7 +293,7 @@ BEGIN
 END $$;
 
 -- Payment processing function for Stripe webhooks (renamed to avoid conflict)
-CREATE FUNCTION public.process_appointment_payment_v2(
+CREATE  or replace FUNCTION public.process_appointment_payment_v2(
   p_appointment_id UUID,
   p_payment_status TEXT
 ) RETURNS JSON
@@ -308,7 +341,7 @@ BEGIN
 END $$;
 
 -- Auto-confirmation function for pre-paid services (renamed to avoid conflict)
-CREATE FUNCTION public.auto_confirm_appointment_v2(
+CREATE or replace FUNCTION public.auto_confirm_appointment_v2(
   p_appointment_id UUID
 ) RETURNS JSON
 LANGUAGE plpgsql
@@ -325,8 +358,7 @@ BEGIN
     ap.*,
     p.title as service_name,
     pu.user_id as client_id,
-    pu.owner_id,
-    ap.appointment_date as requested_date
+    pu.owner_id
   INTO v_appointment
   FROM public.appointment_purchases ap
   JOIN public.services s ON ap.service_id = s.id
@@ -353,7 +385,7 @@ BEGIN
     v_appointment.client_id,
     v_appointment.owner_id,
     v_appointment.service_name,
-    v_appointment.requested_date
+    v_appointment.appointment_date
   );
 
   -- Update appointment status message
@@ -382,7 +414,7 @@ END $$;
 -- ========================================
 
 -- Function to handle appointment updates with meeting links
-CREATE FUNCTION public.update_appointment_with_meeting_link(
+CREATE  or replace FUNCTION public.update_appointment_with_meeting_link(
   p_appointment_id UUID,
   p_meeting_url TEXT
 ) RETURNS JSON

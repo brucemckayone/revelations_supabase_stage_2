@@ -5791,9 +5791,11 @@ ALTER FUNCTION "public"."get_sent_notifications"("p_limit" integer, "p_offset" i
 
 COMMENT ON FUNCTION "public"."get_sent_notifications"("p_limit" integer, "p_offset" integer, "p_type" "text", "p_reference_id" "uuid", "p_start_date" timestamp with time zone, "p_end_date" timestamp with time zone) IS 'Retrieves notifications sent by the current user with read statistics';
 
-
-
-CREATE OR REPLACE FUNCTION "public"."get_service_calendar_availability"("p_service_id" "uuid", "p_days_ahead" integer DEFAULT 30, "p_timezone" "text" DEFAULT NULL::"text") RETURNS "jsonb"
+CREATE OR REPLACE FUNCTION "public"."get_service_calendar_availability"(
+    "p_service_id" "uuid",
+    "p_days_ahead" integer DEFAULT 30,
+    "p_timezone" "text" DEFAULT NULL::"text"
+) RETURNS "jsonb"
     LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
 DECLARE
@@ -5802,10 +5804,12 @@ DECLARE
     v_service_owner_id UUID;
     v_timezone TEXT;
     v_result JSONB;
+    v_service_duration INTERVAL;
+    v_service_duration_minutes INTEGER;
 BEGIN
-    -- Get service provider
-    SELECT p.user_id, COALESCE(p_timezone, pp.timezone, 'UTC')
-    INTO v_service_owner_id, v_timezone
+    -- Get service provider and duration
+    SELECT p.user_id, COALESCE(p_timezone, pp.timezone, 'UTC'), s.duration
+    INTO v_service_owner_id, v_timezone, v_service_duration
     FROM public.services s
     JOIN public.posts p ON s.post_id = p.id
     LEFT JOIN public.provider_preferences pp ON p.user_id = pp.user_id
@@ -5814,6 +5818,13 @@ BEGIN
     IF v_service_owner_id IS NULL THEN
         RETURN jsonb_build_object('error', 'Service not found');
     END IF;
+
+    -- Convert interval duration to minutes
+    v_service_duration_minutes := EXTRACT(EPOCH FROM v_service_duration) / 60;
+    -- Guard: duration must be at least 1 minute
+    IF v_service_duration_minutes < 1 THEN
+        RAISE EXCEPTION 'Service duration must be at least 1 minute. Got: %', v_service_duration;
+    END IF;
     
     -- Get availability data
     WITH availability_data AS (
@@ -5821,7 +5832,7 @@ BEGIN
             date,
             available_slots
         FROM 
-            get_provider_availability(v_service_owner_id, v_start_date, v_end_date)
+            get_provider_availability(v_service_owner_id, v_start_date, v_end_date, v_service_duration_minutes)
     ),
     calendar_days AS (
         SELECT 
@@ -5893,7 +5904,6 @@ BEGIN
     RETURN v_result;
 END;
 $$;
-
 
 ALTER FUNCTION "public"."get_service_calendar_availability"("p_service_id" "uuid", "p_days_ahead" integer, "p_timezone" "text") OWNER TO "postgres";
 
@@ -9311,9 +9321,9 @@ BEGIN
             v_initial_status := 'confirmed';
         WHEN v_booking_workflow = 'pre-approval' THEN
             IF v_auto_confirm THEN
-                v_initial_status := 'pending_payment';
-            ELSE
                 v_initial_status := 'pending_auto_payment';
+            ELSE
+                v_initial_status := 'pending_approval';
             END IF;
         WHEN v_booking_workflow = 'waitlist' THEN
             v_initial_status := 'pending_approval';
