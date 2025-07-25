@@ -1,3 +1,8 @@
+-- Generated with srtd from template: supabase/migrations-templates/20250702000000_fix_respond_to_appointment_service_name.sql
+-- You very likely **DO NOT** want to manually edit this generated file.
+
+BEGIN;
+
 -- Template: fix_respond_to_appointment_service_name.sql
 -- Purpose: Remove reference to deprecated services.name column in respond_to_appointment_request
 -- Generated manually via Cursor
@@ -166,4 +171,9 @@ END $$;
 COMMENT ON FUNCTION public.respond_to_appointment_request(uuid, text, timestamptz, text, text) IS 
 'Fix: Removed reference to deprecated services.name column that caused error 42703.';
 
-COMMIT; 
+COMMIT;
+
+COMMIT;
+
+-- Last built: Never
+-- Built with https://github.com/t1mmen/srtd

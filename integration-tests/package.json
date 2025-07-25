@@ -1,0 +1,28 @@
+{
+  "name": "payment-system-integration-tests",
+  "version": "1.0.0",
+  "description": "Integration tests for the payment and credits system",
+  "type": "module",
+  "scripts": {
+    "test": "node run-tests.js",
+    "test:packages": "node run-tests.js --feature=universal-packages",
+    "test:credits": "node run-tests.js --feature=credit-system",
+    "test:subscriptions": "node run-tests.js --feature=subscription-billing",
+    "test:events": "node run-tests.js --feature=event-booking",
+    "test:webhooks": "node run-tests.js --feature=webhook-processing",
+    "test:errors": "node run-tests.js --feature=error-handling",
+    "test:verbose": "node run-tests.js --verbose",
+    "cleanup": "node utils/cleanup.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4",
+    "chalk": "^5.3.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

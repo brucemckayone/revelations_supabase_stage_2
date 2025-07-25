@@ -1,13 +1,14 @@
--- Template: 20250702000002_fix_get_provider_availability_conflicts.sql
--- Purpose: Fix edge-case where busy slots were still marked available (e.g. 12:00 on 2025-07-17).
--- Strategy:
---   1. Convert appointment/event times to provider timezone for accurate same-day matching.
---   2. Use tstzrange overlap logic with buffer minutes for robust conflict checking.
---   3. Keep return signature the same (slots array with available boolean) but logic more accurate.
+-- Generated with srtd from template: supabase/migrations-templates/20250702000003_refine_get_provider_availability_timezone.sql
+-- You very likely **DO NOT** want to manually edit this generated file.
 
 BEGIN;
 
--- Drop old version first
+-- Template: 20250702000003_refine_get_provider_availability_timezone.sql
+-- Purpose: Remove date-based shortcut filters in conflict subqueries and ensure slot vs conflict comparison uses consistent timestamptz values.
+-- Also interprets base slots in provider timezone before range comparisons.
+
+BEGIN;
+
 DROP FUNCTION IF EXISTS public.get_provider_availability(UUID, DATE, DATE, INTEGER);
 
 CREATE OR REPLACE FUNCTION public.get_provider_availability(
@@ -28,7 +29,7 @@ DECLARE
     v_booking_window_end DATE;
     current_loop_date DATE := p_start_date;
 BEGIN
-    -- Provider preferences ---------------------------------------------------
+    -- Load provider prefs ----------------------------------------------------
     SELECT
         COALESCE(pp.timezone, 'UTC'),
         COALESCE(pp.appointment_buffer_minutes, 0),
@@ -50,12 +51,12 @@ BEGIN
         p_end_date := v_booking_window_end;
     END IF;
 
-    -- Iterate through each date ---------------------------------------------
     WHILE current_loop_date <= p_end_date LOOP
         date := current_loop_date;
 
         WITH
-        -- Appointments -------------------------------------------------------
+        ------------------------------------------------------------------
+        -- Conflicting appointments (whole range, not date-filtered) -----
         appointment_conflicts AS (
             SELECT  
                 (ap.appointment_date AT TIME ZONE v_timezone)                       AS start_local,
@@ -66,23 +67,23 @@ BEGIN
             WHERE  p.owner_id = p_provider_id
               AND  ap.status IN ('confirmed', 'pending_approval', 'pending_payment',
                                  'pending_auto_payment', 'pending_reschedule')
-              AND  DATE((ap.appointment_date AT TIME ZONE v_timezone)) = current_loop_date
         ),
-        -- Events -------------------------------------------------------------
+        ------------------------------------------------------------------
+        -- Conflicting events --------------------------------------------
         event_conflicts AS (
             SELECT (ed.start_date AT TIME ZONE v_timezone) AS start_local,
                    (ed.end_date   AT TIME ZONE v_timezone) AS end_local
             FROM   public.event_dates ed
-            JOIN   public.events      e ON e.id = ed.event_id
+            JOIN   public.events      e  ON e.id = ed.event_id
             JOIN   public.posts       po ON po.id = e.post_id
             WHERE  po.user_id = p_provider_id
-              AND  DATE((ed.start_date AT TIME ZONE v_timezone)) = current_loop_date
         ),
-        -- Base slots ---------------------------------------------------------
-        base_slots AS (
+        ------------------------------------------------------------------
+        -- Base slots (timestamp w/o tz) ---------------------------------
+        raw_slots AS (
             SELECT 
-                ((current_loop_date + avail.start_time) + h * make_interval(mins=>p_slot_length_minutes))            AS slot_local,
-                ((current_loop_date + avail.start_time) + (h+1) * make_interval(mins=>p_slot_length_minutes))        AS slot_end_local
+                ((current_loop_date + avail.start_time) + h * make_interval(mins=>p_slot_length_minutes))            AS slot_naive,
+                ((current_loop_date + avail.start_time) + (h+1) * make_interval(mins=>p_slot_length_minutes))        AS slot_end_naive
             FROM public.availability avail
             CROSS JOIN LATERAL generate_series(
                 0,
@@ -97,41 +98,43 @@ BEGIN
                       AND ae.exception_date = current_loop_date
                       AND ae.is_available = FALSE)
         ),
-        -- Check conflicts using tstzrange overlap with buffer ----------------
-        checked_slots AS (
+        ------------------------------------------------------------------
+        -- Convert slots to timestamptz in provider tz -------------------
+        slots AS (
             SELECT 
-                bs.slot_local,
-                bs.slot_end_local,
-                -- Past check -------------------------------------------------
-                ((bs.slot_local AT TIME ZONE v_timezone) < ((v_now + (v_notice || ' hours')::interval) AT TIME ZONE v_timezone))      AS is_past,
-
-                -- Appointment conflict -------------------------------------
+                (rs.slot_naive AT TIME ZONE v_timezone)       AS slot_start,
+                (rs.slot_end_naive AT TIME ZONE v_timezone)   AS slot_end
+            FROM raw_slots rs
+        ),
+        ------------------------------------------------------------------
+        checked AS (
+            SELECT 
+                s.slot_start,
+                s.slot_end,
+                ((s.slot_start) < ((v_now + (v_notice || ' hours')::interval)))      AS is_past,
                 EXISTS (
                     SELECT 1 FROM appointment_conflicts ac
-                    WHERE tstzrange( (ac.start_local  - make_interval(mins=>v_buffer)),
-                                     (ac.end_local    + make_interval(mins=>v_buffer)),
-                                     '[]') &&
-                          tstzrange( bs.slot_local, bs.slot_end_local, '[]')
+                    WHERE tstzrange((ac.start_local - make_interval(mins=>v_buffer)),
+                                    (ac.end_local   + make_interval(mins=>v_buffer)), '[]') &&
+                          tstzrange(s.slot_start, s.slot_end, '[]')
                 ) AS has_appointment_conflict,
-
-                -- Event conflict -------------------------------------------
                 EXISTS (
                     SELECT 1 FROM event_conflicts ec
                     WHERE tstzrange(ec.start_local, ec.end_local, '[]') &&
-                          tstzrange(bs.slot_local, bs.slot_end_local, '[]')
+                          tstzrange(s.slot_start, s.slot_end, '[]')
                 ) AS has_event_conflict
-            FROM base_slots bs
+            FROM slots s
         )
         SELECT jsonb_agg(
                    jsonb_build_object(
-                       'start_time', cs.slot_local AT TIME ZONE v_timezone,  -- return as timestamptz in provider tz
-                       'end_time',   cs.slot_end_local AT TIME ZONE v_timezone,
-                       'available',  NOT (cs.is_past OR cs.has_appointment_conflict OR cs.has_event_conflict),
-                       'slot_id',    md5(p_provider_id::TEXT || cs.slot_local::TEXT)
-                   ) ORDER BY cs.slot_local
+                       'start_time', checked.slot_start,
+                       'end_time',   checked.slot_end,
+                       'available',  NOT (checked.is_past OR checked.has_appointment_conflict OR checked.has_event_conflict),
+                       'slot_id',    md5(p_provider_id::TEXT || checked.slot_start::TEXT)
+                   ) ORDER BY checked.slot_start
                )
         INTO available_slots
-        FROM checked_slots cs;
+        FROM checked;
 
         IF available_slots IS NULL THEN
             available_slots := '[]'::JSONB;
@@ -140,11 +143,16 @@ BEGIN
         RETURN NEXT;
         current_loop_date := current_loop_date + INTERVAL '1 day';
     END LOOP;
+
     RETURN;
 END;
 $$ LANGUAGE plpgsql STABLE SECURITY DEFINER;
 
-COMMENT ON FUNCTION public.get_provider_availability(uuid, date, date, integer) IS
-'Computes provider availability with accurate conflict detection (buffer & timezone-aware). Fixes earlier bug where busy slots could show as available.';
+COMMENT ON FUNCTION public.get_provider_availability(uuid, date, date, integer) IS 'Improved timezone-safe conflict detection; removes date prefilter that caused edge-case availability errors.';
 
-COMMIT; 
+COMMIT;
+
+COMMIT;
+
+-- Last built: Never
+-- Built with https://github.com/t1mmen/srtd
