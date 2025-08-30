@@ -8,6 +8,7 @@ import {
   assertNotNull,
   assertGreaterThan,
   assertArrayLength,
+  assertExpectedFailure,
 
   // Database utilities
   queryDatabase,
@@ -30,6 +31,11 @@ import {
 
   // Logging
   log,
+  logSection,
+  logRequirement,
+  logAction,
+  logVerify,
+  logExpectedFailure,
 } from "../../utils/test-helpers.js";
 
 // Additional database utilities
@@ -43,6 +49,7 @@ export {
   assertNotNull,
   assertGreaterThan,
   assertArrayLength,
+  assertExpectedFailure,
 
   // Database utilities
   queryDatabase,
@@ -65,6 +72,11 @@ export {
 
   // Logging
   log,
+  logSection,
+  logRequirement,
+  logAction,
+  logVerify,
+  logExpectedFailure,
 };
 
 /**

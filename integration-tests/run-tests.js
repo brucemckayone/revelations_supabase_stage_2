@@ -1,16 +1,29 @@
 #!/usr/bin/env node
 
 import { testConnection } from "./config/database.js";
-import { log, printTestSummary } from "./utils/test-helpers.js";
-import cleanupTestData from "./utils/cleanup.js";
+import { log } from "./utils/test-helpers.js";
+// import cleanupTestData from "./utils/cleanup.js"; // TODO: Fix cleanup import
 
 // Import test modules
 import { runCreditBookingTests } from "./features/credit-system/credit-booking-tests.js";
+import { runTests as runEventsTests } from "./features/events/index.js";
+import { runTests as runNotificationsTests } from "./features/notifications/index.js";
 
 // Parse command line arguments
 const args = process.argv.slice(2);
 const feature = args.find((arg) => arg.startsWith("--feature="))?.split("=")[1];
 const verbose = args.includes("--verbose");
+
+// Global test results tracking
+let globalResults = {
+  suites: [],
+  totalPassed: 0,
+  totalFailed: 0,
+  totalTests: 0,
+  startTime: null,
+  endTime: null,
+  errors: [],
+};
 
 // Available test features
 const TEST_FEATURES = {
@@ -31,11 +44,17 @@ const TEST_FEATURES = {
     runner: async () =>
       log("Subscription billing tests not yet implemented", "warning"),
   },
-  "event-booking": {
-    name: "Event Booking Tests",
-    description: "Tests for direct event purchases and bookings",
-    runner: async () =>
-      log("Event booking tests not yet implemented", "warning"),
+  events: {
+    name: "Events System Tests",
+    description:
+      "Tests for event creation, booking, and universal package integration",
+    runner: runEventsTests,
+  },
+  notifications: {
+    name: "Notification System Tests",
+    description:
+      "Tests for multi-channel notification delivery, preferences, templates, and security",
+    runner: runNotificationsTests,
   },
   "webhook-processing": {
     name: "Webhook Processing Tests",
@@ -51,7 +70,80 @@ const TEST_FEATURES = {
   },
 };
 
+function addSuiteResult(result) {
+  globalResults.suites.push(result);
+  globalResults.totalPassed += result.passed || 0;
+  globalResults.totalFailed += result.failed || 0;
+  globalResults.totalTests += result.total || 0;
+
+  if (result.errors) {
+    globalResults.errors.push(...result.errors);
+  }
+}
+
+function printImprovedTestSummary() {
+  globalResults.endTime = Date.now();
+  const duration = globalResults.endTime - globalResults.startTime;
+
+  console.log("\n" + "=".repeat(50));
+  console.log("TEST SUMMARY");
+  console.log("=".repeat(50));
+
+  // Suite-by-suite summary
+  for (const suite of globalResults.suites) {
+    const status = suite.failed === 0 ? "✅" : "❌";
+    const summary = `${suite.passed}/${suite.total} passed`;
+    console.log(`${status} ${suite.suiteName}: ${summary}`);
+
+    if (suite.failed > 0 && suite.errors) {
+      for (const error of suite.errors) {
+        console.log(`  └─ ${error.testName}: ${error.error}`);
+      }
+    }
+  }
+
+  console.log("-".repeat(50));
+
+  // Overall summary
+  if (globalResults.totalFailed === 0 && globalResults.totalTests > 0) {
+    console.log(`🎉 All ${globalResults.totalTests} tests passed!`);
+  } else {
+    console.log(
+      `❌ ${globalResults.totalFailed} of ${globalResults.totalTests} tests failed`
+    );
+    console.log(`✅ ${globalResults.totalPassed} tests passed`);
+  }
+
+  console.log(`⏱️  Duration: ${(duration / 1000).toFixed(2)}s`);
+  const successRate =
+    globalResults.totalTests > 0
+      ? ((globalResults.totalPassed / globalResults.totalTests) * 100).toFixed(
+          2
+        )
+      : 0;
+  console.log(`📊 Success rate: ${successRate}%`);
+
+  if (globalResults.errors.length > 0) {
+    console.log("\n" + "=".repeat(50));
+    console.log("DETAILED ERRORS");
+    console.log("=".repeat(50));
+    globalResults.errors.forEach((error, index) => {
+      console.log(`${index + 1}. ${error.testName}`);
+      console.log(`   Error: ${error.error}`);
+      if (verbose && error.stack) {
+        console.log(`   Stack: ${error.stack.split("\n")[0]}`);
+      }
+    });
+  }
+
+  console.log("=".repeat(50));
+
+  return globalResults.totalFailed === 0;
+}
+
 async function main() {
+  globalResults.startTime = Date.now();
+
   console.log("🧪 Payment System Integration Tests");
   console.log("=====================================\n");
 
@@ -79,7 +171,10 @@ async function main() {
       log(`Running ${testFeature.name}...`, "info");
       log(testFeature.description, "debug");
 
-      await testFeature.runner();
+      const result = await testFeature.runner();
+      if (result) {
+        addSuiteResult(result);
+      }
     } else {
       // Run all tests
       log("Running all integration tests...", "info");
@@ -90,9 +185,20 @@ async function main() {
           log(testFeature.description, "debug");
           log("-".repeat(50), "debug");
 
-          await testFeature.runner();
+          const result = await testFeature.runner();
+          if (result) {
+            addSuiteResult(result);
+          }
         } catch (error) {
           log(`Feature ${featureKey} failed: ${error.message}`, "error");
+          // Add failed suite to results
+          addSuiteResult({
+            suiteName: testFeature.name,
+            passed: 0,
+            failed: 1,
+            total: 1,
+            errors: [{ testName: "Suite Execution", error: error.message }],
+          });
           if (verbose) {
             console.error(error.stack);
           }
@@ -100,8 +206,8 @@ async function main() {
       }
     }
 
-    // Print test summary
-    const success = printTestSummary();
+    // Print improved test summary
+    const success = printImprovedTestSummary();
 
     if (success) {
       log("\n🎉 All tests passed!", "success");

@@ -1,6 +1,16 @@
-# New Feature Test Template
+# Test-Driven Development (TDD) Feature Template
 
-Use this template when creating a new feature test module.
+This template follows our proven TDD methodology for creating comprehensive feature test suites.
+Based on successful patterns from Events and Notifications systems.
+
+## TDD Philosophy
+
+✅ **Test First**: Write comprehensive tests before implementation
+✅ **Requirements-Driven**: Each test validates specific business requirements  
+✅ **Comprehensive Coverage**: Test creation, validation, edge cases, and integration
+✅ **Authenticated Testing**: Use TestUserManager for realistic user contexts
+✅ **Detailed Logging**: Clear test descriptions and requirement tracking
+✅ **Modular Design**: Independent test suites with proper cleanup
 
 ## 1. Create Directory Structure
 
@@ -12,24 +22,33 @@ mkdir tests helpers
 
 ## 2. Feature Entry Point (`index.js`)
 
+Follow the comprehensive pattern from our successful systems:
+
 ```javascript
 import { TestSuite } from "../../core/test-framework.js";
-import { runYourMainTests } from "./tests/main-tests.js";
+import { runYourCreationTests } from "./tests/your-creation.test.js";
+import { runYourValidationTests } from "./tests/your-validation.test.js";
+import { runYourIntegrationTests } from "./tests/your-integration.test.js";
 import { cleanup } from "./cleanup.js";
 
 export const metadata = {
-  name: "Your Feature Name",
-  description: "Brief description of what this feature tests",
-  dependencies: [], // e.g., ['credit-system'] if you depend on credit tests
-  cleanup_order: 1, // Higher numbers cleaned first (1-10 range)
+  name: "Your Feature System",
+  description: "Comprehensive tests for your feature with creation, validation, and integration",
+  dependencies: [], // e.g., ['notifications'] if you depend on notification tests
+  cleanup_order: 2, // Higher numbers cleaned first (1-10 range)
 };
 
 export async function runTests() {
   const suite = new TestSuite(metadata.name, metadata.description);
 
-  // Add your test modules here
-  suite.addTest(runYourMainTests, "Main functionality tests");
-  // suite.addTest(runYourEdgeCaseTests, 'Edge case tests');
+  // Core functionality tests
+  suite.addTest("Creation and Management Tests", runYourCreationTests);
+  
+  // Validation and error handling
+  suite.addTest("Validation and Security Tests", runYourValidationTests);
+  
+  // System integration tests
+  suite.addTest("Integration and Workflow Tests", runYourIntegrationTests);
 
   return await suite.run();
 }
@@ -39,21 +58,36 @@ export { cleanup };
 
 ## 3. Test Fixtures (`fixtures.js`)
 
+Use authenticated fixtures with comprehensive setup methods:
+
 ```javascript
 import { TestFixtures } from "../../core/test-framework.js";
 import { supabase } from "../../config/database.js";
+import { TestUserManager } from "../../shared/utilities/test-user-manager.js";
 
 export class YourFeatureFixtures extends TestFixtures {
   constructor() {
     super("your-feature-name");
+    this.userManager = new TestUserManager();
   }
 
+  /**
+   * Creates a test record with authentication
+   */
   async createTestRecord(overrides = {}) {
+    const { user } = await this.userManager.asUser(
+      process.env.TEST_USER_EMAIL || "brucemckayone@gmail.com",
+      process.env.TEST_USER_PASSWORD || "password123"
+    );
+
     const recordData = {
-      // Use TEST_ prefix for all test data
+      user_id: user.id,
       name: `TEST_YourRecord_${Date.now()}`,
-      description: "Test record for your feature",
-      // Add your specific fields
+      description: "Test record for comprehensive testing",
+      metadata: {
+        test_created_at: new Date().toISOString(),
+        test_type: "automated_test"
+      },
       ...overrides,
     };
 
@@ -65,14 +99,54 @@ export class YourFeatureFixtures extends TestFixtures {
 
     if (error) throw error;
 
-    // Track for cleanup
     this.trackRecord("your_table", data.id);
     return data;
   }
 
-  // Add more fixture methods as needed
+  /**
+   * Gets authenticated test user ID
+   */
+  async getTestUserId() {
+    const { user } = await this.userManager.asUser(
+      process.env.TEST_USER_EMAIL || "brucemckayone@gmail.com",
+      process.env.TEST_USER_PASSWORD || "password123"
+    );
+    return user.id;
+  }
+
+  /**
+   * Creates a complete test setup for complex scenarios
+   */
+  async createTestSetup() {
+    const userId = await this.getTestUserId();
+    
+    const mainRecord = await this.createTestRecord({ user_id: userId });
+    const relatedRecord = await this.createRelatedTestRecord(mainRecord.id);
+    
+    return {
+      mainRecord,
+      relatedRecord,
+      userId
+    };
+  }
+
   async createRelatedTestRecord(parentId, overrides = {}) {
-    // Create related test data
+    const relatedData = {
+      parent_id: parentId,
+      name: `TEST_Related_${Date.now()}`,
+      ...overrides,
+    };
+
+    const { data, error } = await supabase
+      .from("related_table")
+      .insert(relatedData)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    this.trackRecord("related_table", data.id);
+    return data;
   }
 }
 ```
@@ -136,115 +210,257 @@ export async function verify() {
 }
 ```
 
-## 5. Main Tests (`tests/main-tests.js`)
+## 5. Comprehensive Test Files
+
+Follow our proven TDD pattern with detailed requirements and logging:
+
+### `tests/your-creation.test.js`
 
 ```javascript
 import {
+  startTest,
+  endTest,
+  logSection,
+  logRequirement,
+  logAction,
+  logVerify,
+  logExpectedFailure,
   assert,
   assertEqual,
   assertNotNull,
-  callFunction,
+  assertGreaterThan,
 } from "../../../shared/utilities/test-utils.js";
 import { YourFeatureFixtures } from "../fixtures.js";
-import { getTestUsers } from "../../../config/test-users.js";
+import { supabase } from "../../../config/database.js";
+import { TestUserManager } from "../../../shared/utilities/test-user-manager.js";
 
-export async function runYourMainTests() {
+// Test user configuration
+const TEST_AUTH_EMAIL = process.env.TEST_USER_EMAIL || "brucemckayone@gmail.com";
+const TEST_AUTH_PASSWORD = process.env.TEST_USER_PASSWORD || "password123";
+const userManager = new TestUserManager();
+
+export async function runYourCreationTests() {
   const fixtures = new YourFeatureFixtures();
 
   try {
-    // Test 1: Basic functionality
-    await testBasicFunctionality(fixtures);
-
-    // Test 2: Error handling
-    await testErrorHandling(fixtures);
-
-    // Test 3: Edge cases
-    await testEdgeCases(fixtures);
+    await testBasicCreation(fixtures);
+    await testCreationWithMetadata(fixtures);
+    await testCreationFunction(fixtures);
+    await testCreationValidation(fixtures);
   } finally {
-    // Always cleanup
     await fixtures.cleanup();
   }
 }
 
-async function testBasicFunctionality(fixtures) {
-  // Create test data
-  const testRecord = await fixtures.createTestRecord();
-  const testUsers = await getTestUsers(1);
+async function testBasicCreation(fixtures) {
+  startTest("Basic Record Creation");
 
-  // Test your database function
-  const { data, error } = await callFunction("your_database_function", {
-    p_record_id: testRecord.id,
-    p_user_id: testUsers[0].id,
-    p_other_param: "test_value",
+  logSection("Setup Test Environment");
+  logRequirement("System must be able to create basic records");
+  logRequirement("Records must have required fields and proper structure");
+
+  logAction("Creating test record");
+  const record = await fixtures.createTestRecord();
+
+  logVerify("Record created successfully");
+  assertNotNull(record.id, "Record should have valid ID");
+  assertNotNull(record.user_id, "Record should have user ID");
+  assertNotNull(record.name, "Record should have name");
+  assertNotNull(record.created_at, "Record should have creation timestamp");
+
+  endTest();
+}
+
+async function testCreationWithMetadata(fixtures) {
+  startTest("Creation with Metadata");
+
+  logSection("Test Metadata Support");
+  logRequirement("Records must support flexible metadata storage");
+  logRequirement("Metadata must be stored as valid JSONB");
+
+  const metadata = {
+    source: "test_system",
+    priority: "high",
+    custom_data: { nested_field: "test_value" }
+  };
+
+  logAction("Creating record with complex metadata");
+  const record = await fixtures.createTestRecord({ metadata: metadata });
+
+  logVerify("Record with metadata created successfully");
+  assertNotNull(record.metadata, "Record should have metadata");
+  assertEqual(record.metadata.source, "test_system", "Metadata should preserve source");
+
+  endTest();
+}
+
+async function testCreationFunction(fixtures) {
+  startTest("Creation via Database Function");
+
+  logSection("Test Database Function");
+  logRequirement("Database function must work correctly");
+  logRequirement("Function must handle authentication and validation");
+
+  const { client, user } = await userManager.asUser(TEST_AUTH_EMAIL, TEST_AUTH_PASSWORD);
+
+  logAction("Creating record via database function");
+  const { data: recordId, error } = await client.rpc("your_create_function", {
+    p_user_id: user.id,
+    p_name: `TEST_Function_Record_${Date.now()}`,
+    p_description: "Record created via function"
   });
 
-  // Assertions
+  fixtures.trackRecord("your_table", recordId);
+
+  logVerify("Function-created record successful");
   assert(!error, "Function should execute without error");
-  assertNotNull(data, "Function should return data");
-  assertEqual(data.status, "success", "Function should return success status");
+  assertNotNull(recordId, "Function should return record ID");
+
+  endTest();
 }
 
-async function testErrorHandling(fixtures) {
-  // Test with invalid data
-  const { data, error } = await callFunction("your_database_function", {
-    p_record_id: "invalid-id",
-    p_user_id: "invalid-user",
-    p_other_param: null,
-  });
+async function testCreationValidation(fixtures) {
+  startTest("Creation Validation");
 
-  assert(error !== null, "Function should return error for invalid input");
-  assert(data === null, "Function should not return data on error");
-}
+  logSection("Test Required Field Validation");
+  logRequirement("System must validate required fields");
+  logRequirement("Invalid records must be rejected");
 
-async function testEdgeCases(fixtures) {
-  // Test boundary conditions, null values, etc.
+  logAction("Testing validation with missing required fields");
+
+  try {
+    await supabase.from("your_table").insert({
+      // Missing required fields
+      description: "incomplete record"
+    });
+    assert(false, "Should not allow record without required fields");
+  } catch (error) {
+    logExpectedFailure("Validation correctly rejected invalid record");
+    assert(true, "System should validate required fields");
+  }
+
+  endTest();
 }
 ```
 
 ## 6. Add to Package.json
 
-Add your feature to the test scripts:
+Add comprehensive test scripts following our proven pattern:
 
 ```json
 {
   "scripts": {
-    "test:your-feature": "node run-tests.js --feature=your-feature-name"
+    "test:your-feature": "node run-tests.js --feature=your-feature-name",
+    "test:your-feature:creation": "node run-single-test.js your-feature-creation",
+    "test:your-feature:validation": "node run-single-test.js your-feature-validation", 
+    "test:your-feature:integration": "node run-single-test.js your-feature-integration",
+    "test:your-feature:all": "npm run test:your-feature:creation && npm run test:your-feature:validation && npm run test:your-feature:integration"
   }
 }
 ```
 
-## 7. Test Your Feature
+## 7. Update run-single-test.js
+
+Add your feature tests to the TEST_MODULES:
+
+```javascript
+const TEST_MODULES = {
+  // ... existing tests ...
+  
+  "your-feature-creation": () =>
+    import("./features/your-feature/tests/your-creation.test.js").then(
+      (m) => m.runYourCreationTests
+    ),
+  "your-feature-validation": () =>
+    import("./features/your-feature/tests/your-validation.test.js").then(
+      (m) => m.runYourValidationTests
+    ),
+  "your-feature-integration": () =>
+    import("./features/your-feature/tests/your-integration.test.js").then(
+      (m) => m.runYourIntegrationTests
+    ),
+};
+```
+
+## 8. Test Your Feature
 
 ```bash
-# Run your specific feature tests
-npm run test:your-feature
+# Run individual test components
+npm run test:your-feature:creation
+npm run test:your-feature:validation
+npm run test:your-feature:integration
 
-# Run with verbose output
-npm run test:your-feature --verbose
+# Run complete feature test suite
+npm run test:your-feature:all
+
+# Run via main test framework
+npm run test:your-feature
 
 # Clean up after testing
 npm run cleanup
 ```
 
-## Checklist
+## TDD Checklist
 
-- [ ] Created proper directory structure
-- [ ] Implemented feature metadata with dependencies
-- [ ] Created fixtures with proper `TEST_` prefixed data
-- [ ] Implemented cleanup with verification
-- [ ] Added comprehensive test scenarios
-- [ ] Added script to package.json
-- [ ] Tested feature in isolation
-- [ ] Verified cleanup works correctly
-- [ ] Tested with other features (if dependencies exist)
+✅ **Requirements Definition**
+- [ ] Clear business requirements documented in test descriptions
+- [ ] Each test validates specific business logic
+- [ ] Requirements traceability from test to functionality
 
-## Tips
+✅ **Comprehensive Test Coverage**
+- [ ] Creation and basic functionality tests
+- [ ] Validation and error handling tests  
+- [ ] Integration and workflow tests
+- [ ] Authentication and authorization tests
+- [ ] Edge cases and boundary conditions
 
-1. **Keep tests focused**: Each test should verify one specific behavior
-2. **Use descriptive names**: Test and assertion messages should be clear
-3. **Test error paths**: Don't just test success scenarios
-4. **Verify cleanup**: Always check that your cleanup actually works
-5. **Use realistic data**: Create test data that matches real usage patterns
-6. **Document dependencies**: If your feature depends on others, document it clearly
+✅ **Test Infrastructure**
+- [ ] Proper directory structure with modular test files
+- [ ] Authenticated fixtures using TestUserManager
+- [ ] Comprehensive cleanup with verification
+- [ ] Individual and comprehensive test scripts
+- [ ] Proper TEST_ prefixed data for isolation
 
-This template ensures your feature tests follow the established patterns and integrate seamlessly with the existing test suite.
+✅ **Test Quality**
+- [ ] Detailed logging with requirements, actions, and verifications
+- [ ] Clear test descriptions and assertion messages
+- [ ] Expected failure testing with logExpectedFailure()
+- [ ] Realistic test data matching production patterns
+- [ ] Independent tests that can run in any order
+
+## TDD Best Practices (Learned from Events & Notifications)
+
+### 🎯 **Requirements-Driven Testing**
+- Start each test with clear requirements using `logRequirement()`
+- Map every business rule to specific test assertions
+- Use descriptive test names that explain the business value
+
+### 🔐 **Authentication-First Approach**
+- Always use `TestUserManager` for realistic user contexts
+- Test with authenticated database function calls (`client.rpc`)
+- Verify RLS policies work correctly in tests
+
+### 📝 **Comprehensive Logging**
+- Use structured logging: `logSection()`, `logAction()`, `logVerify()`
+- Mark expected failures clearly with `logExpectedFailure()`
+- Create clear audit trail for debugging complex failures
+
+### 🧹 **Bulletproof Cleanup**
+- Track all created records with `this.trackRecord()`
+- Implement cleanup verification with `verify()` function
+- Use time-based cleanup for records without TEST_ prefixes
+- Handle foreign key constraints in correct order
+
+### 🔄 **Test Orchestration**
+- Create individual test runners for focused debugging
+- Build comprehensive test suites that run all components
+- Support both isolated and integrated test execution
+- Enable easy debugging with `--inspect-brk` support
+
+### 📊 **Validation Testing**
+- Test both positive and negative scenarios
+- Verify database constraints and validation rules
+- Test edge cases and boundary conditions
+- Ensure proper error messages and handling
+
+This TDD template ensures your feature tests follow our battle-tested patterns that achieved 100% success rates on Events and Notifications systems!

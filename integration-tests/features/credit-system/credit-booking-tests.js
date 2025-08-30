@@ -13,7 +13,7 @@ import {
   isValidUUID,
 } from "../../utils/test-helpers.js";
 import { supabase, TEST_CONFIG } from "../../config/database.js";
-import cleanupTestData from "../../utils/cleanup.js";
+// import cleanupTestData from "../../utils/cleanup.js"; // TODO: Fix cleanup
 
 // Test data storage for cleanup
 let testData = {
@@ -28,7 +28,7 @@ export async function runCreditBookingTests() {
 
   try {
     // Clean up any existing test data
-    await cleanupTestData();
+    // await cleanupTestData(); // TODO: Fix cleanup
 
     // Run test scenarios
     await testCanBookEventWithCredits();
@@ -44,7 +44,7 @@ export async function runCreditBookingTests() {
     throw error;
   } finally {
     // Clean up test data
-    await cleanupTestData();
+    // await cleanupTestData(); // TODO: Fix cleanup
   }
 }
 
